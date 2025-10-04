@@ -1388,6 +1388,12 @@ async def cb_handler(client: Client, query: CallbackQuery):
             await query.answer(url=f"https://telegram.me/{temp.U_NAME}?start={ident}_{file_id}")
             
     elif query.data.startswith("sendfiles"):
+        # Iske neeche add karo
+        # premium check for send all files
+        if not await db.has_premium_access(query.from_user.id):
+            await query.answer("⚠️ Yeh Feature Sirf Premium Users Ke Liye Hai.\n\nPremium Lene Ke Liye /plan Check Karein.", show_alert=True)
+            return
+        # Iske upar add karo
         clicked = query.from_user.id
         ident, key = query.data.split("#")
         settings = await get_settings(query.message.chat.id)
@@ -1797,6 +1803,12 @@ async def cb_handler(client: Client, query: CallbackQuery):
             await query.answer("Yᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ sᴜғғɪᴄɪᴀɴᴛ ʀɪɢᴛs ᴛᴏ ᴅᴏ ᴛʜɪs !", show_alert=True)
 
     elif query.data.startswith("generate_stream_link"):
+        # Iske neeche add karo
+        # premium check for stream/download
+        if not await db.has_premium_access(query.from_user.id):
+            await query.answer("⚠️ Yeh Feature Sirf Premium Users Ke Liye Hai.\n\nPremium Lene Ke Liye /plan Check Karein.", show_alert=True)
+            return
+        # Iske upar add karo
         _, file_id = query.data.split(":")
         try:
             log_msg = await client.send_cached_media(chat_id=LOG_CHANNEL, file_id=file_id)
