@@ -6,18 +6,12 @@ class script(object):
     START_TXT = """
 <b>👋 Welcome {},</b>
 
-<b>🎬 <u>𝗶𝗦𝘁𝗿𝗲𝗮𝗺𝗫 — Telegram ka trusted movie bot</u></b>
+<b>🚀 I am a powerful and super fast Auto-Filter Bot, made for your groups!</b>
 
-🎯 Naam daalo — movie ho, series ho ya anime —<br>
-<b>𝗥𝗲𝘀𝘂𝗹𝘁 𝗳𝘂𝗹𝗹 𝘀𝗽𝗲𝗲𝗱 𝘀𝗲 𝗺𝗶𝗹𝘁𝗮 𝗵𝗮𝗶 ⚡</b>
+✨ Just type the **Movie, Series, or Anime** name you want.
+I will automatically filter the file for you instantly!
 
-📥 Links milenge directly message ke andar —<br>
-Kahin jump karne ki zarurat nahi, sab kuch yahin milega.
-
-👥 Private chats me bhi work karta hai, groups me bhi perfect fit 💯<br>
-🌐 Download & stream directly in Telegram — or switch to WebApp for a smoother ride.
-
-🍿 <b>𝗶𝗦𝘁𝗿𝗲𝗮𝗺𝗫 = Clear. Fast. Fire. 🚀</b>
+👥 I work perfectly in **Groups** and in **Private Chats** too.
 """
     CLONE_START_TXT = """<b><blockquote>ʜᴇʟʟᴏ {}, ᴍʏ ɴᴀᴍᴇ <a href=https://t.me/{}>{}</a></blockquote>
     
@@ -208,19 +202,25 @@ Nᴀᴍᴇ - {}"""
     CUDNT_FND = """ɪ ᴄᴏᴜʟᴅɴ'ᴛ ꜰɪɴᴅ ᴀɴʏᴛʜɪɴɢ ʀᴇʟᴀᴛᴇᴅ ᴛᴏ {}
 ᴅɪᴅ ʏᴏᴜ ᴍᴇᴀɴ ᴀɴʏ ᴏɴᴇ ᴏꜰ ᴛʜᴇꜱᴇ?"""
 
-    I_CUDNT = """<b>sᴏʀʀʏ ɴᴏ ꜰɪʟᴇs ᴡᴇʀᴇ ꜰᴏᴜɴᴅ ꜰᴏʀ ʏᴏᴜʀ ʀᴇǫᴜᴇꜱᴛ {} 😕
+    I_CUDNT = """
+<b>😔 Sᴏʀʀʏ! Nᴏ ꜰɪʟᴇs ᴡᴇʀᴇ ꜰᴏᴜɴᴅ ꜰᴏʀ ʏᴏᴜʀ ʀᴇǫᴜᴇꜱᴛ: {}</b>
 
-ᴄʜᴇᴄᴋ ʏᴏᴜʀ sᴘᴇʟʟɪɴɢ ɪɴ ɢᴏᴏɢʟᴇ ᴀɴᴅ ᴛʀʏ ᴀɢᴀɪɴ 😃
+**🇮🇳 (Hindi) 🇮🇳**
+फ़ाइल नहीं मिली! कृपया अपनी **स्पेलिंग** Google पर चेक करें और दोबारा कोशिश करें।
+अगर फिर भी फ़ाइल न मिले, तो **#request** करके मांग सकते हैं:
+➡️ **#request (फ़िल्म/सीरीज़ का नाम)**
 
-ᴍᴏᴠɪᴇ ʀᴇǫᴜᴇꜱᴛ ꜰᴏʀᴍᴀᴛ 👇
+**🇬🇧 (English) 🇬🇧**
+No file found! Please **check your spelling** on Google and try again.
+If you still can't find it, you can **#request** it:
+➡️ **#request (movie/series name)**
 
-ᴇxᴀᴍᴘʟᴇ : Uncharted or Uncharted 2022 or Uncharted En
+**💡 Fᴏʀᴍᴀᴛ Eample:**
+🔸 **Movie:** Uncharted or Uncharted 2022
+🔸 **Series:** Loki S01 or Loki S01E04
 
-ꜱᴇʀɪᴇꜱ ʀᴇǫᴜᴇꜱᴛ ꜰᴏʀᴍᴀᴛ 👇
-
-ᴇxᴀᴍᴘʟᴇ : Loki S01 or Loki S01E04 or Lucifer S03E24
-
-🚯 ᴅᴏɴᴛ ᴜꜱᴇ ➠ ':(!,./)</b>"""
+🚫 **Dᴏɴ'ᴛ Uꜱᴇ:** `':(!,./)`
+"""
 
     I_CUD_NT = """ɪ ᴄᴏᴜʟᴅɴ'ᴛ ꜰɪɴᴅ ᴀɴʏ ᴍᴏᴠɪᴇ ʀᴇʟᴀᴛᴇᴅ ᴛᴏ {}.
 ᴘʟᴇᴀꜱᴇ ᴄʜᴇᴄᴋ ᴛʜᴇ ꜱᴘᴇʟʟɪɴɢ ᴏɴ ɢᴏᴏɢʟᴇ ᴏʀ ɪᴍᴅʙ..."""
@@ -250,11 +250,11 @@ Nᴀᴍᴇ - {}"""
     NORSLTS = """ 
 ★ #𝗡𝗼𝗥𝗲𝘀𝘂𝗹𝘁𝘀 ★
 
-𝗜𝗗 <b>: {}</b>
+𝗜ᴅ <b>: {}</b>
 
-𝗡𝗮𝗺𝗲 <b>: {}</b>
+𝗡ᴀᴍᴇ <b>: {}</b>
 
-𝗠𝗲𝘀𝘀𝗮𝗴𝗲 <b>: {}</b>"""
+𝗠ᴇsꜱᴀɢᴇ <b>: {}</b>"""
 
     CAPTION = """<b>📂 ғɪʟᴇɴᴀᴍᴇ : {file_name}
 
@@ -346,7 +346,7 @@ Aᴠᴀɪʟᴀʙʟᴇ ᴄᴏᴍᴍᴀɴᴅs:
  ᴄᴏᴍᴍᴀɴᴅꜱ ᴀɴᴅ ᴜꜱᴀɢᴇ: 
   
  /covid - ᴜꜱᴇ ᴛʜɪꜱ ᴄᴏᴍᴍᴀɴᴅ ᴡɪᴛʜ yᴏᴜʀ ᴄᴏᴜɴᴛʀy ɴᴀᴍᴇ ᴛᴏ ɢᴇᴛ ᴄᴏᴠɪᴅᴇ ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ 
- ᴇxᴀᴍᴩʟᴇ:<code>/covid 𝖨𝗇𝖽𝗂𝖺</code> 
+ ᴇxᴀᴍᴩʟᴇ:<code>/covid 𝖨𝗇ᴅ𝗂𝖺</code> 
   
  ⚠️ ᴛʜɪꜱ ꜱᴇʀᴠɪᴄᴇ ʜᴀꜱ ʙᴇᴇɴ ꜱᴛᴏᴩᴩᴇᴅ 
   
@@ -452,7 +452,7 @@ Aᴠᴀɪʟᴀʙʟᴇ ᴄᴏᴍᴍᴀɴᴅs:
  NOTE: 
  • Oɴʟʏ Dɪɢɪᴛꜱ Aʀᴇ Aʟʟᴏᴡᴇᴅ 
  • Mᴀxɪᴍᴜᴍ Aʟʟᴏᴡᴇᴅ Dɪɢɪᴛꜱ Tɪʟʟ 𝟾𝟺  
- (I Cᴀɴ'ᴛ Gᴇɴᴇʀᴀᴛᴇ Pᴀꜱꜱᴡᴏʀᴅꜱ Aʙᴏᴠᴇ Tʜᴇ Lᴇɴɢᴛʜ 𝟾𝟺) 
+ (I Cᴀɴ'T Gᴇɴᴇʀᴀᴛᴇ Pᴀꜱꜱᴡᴏʀᴅꜱ Aʙᴏᴠᴇ Tʜᴇ Lᴇɴɢᴛʜ 𝟾𝟺) 
  • IMDʙ ꜱʜᴏᴜʟᴅ ʜᴀᴠᴇ ᴀᴅᴍɪɴ ᴘʀɪᴠɪʟʟᴀɢᴇ. 
  • Tʜᴇꜱᴇ ᴄᴏᴍᴍᴀɴᴅꜱ ᴡᴏʀᴋꜱ ᴏɴ ʙᴏᴛʜ ᴘᴍ ᴀɴᴅ ɢʀᴏᴜᴘ. 
  • Tʜᴇꜱᴇ ᴄᴏᴍᴍᴀɴᴅꜱ ᴄᴀɴ ʙᴇ ᴜꜱᴇᴅ ʙʏ ᴀɴʏ ɢʀᴏᴜᴘ ᴍᴇᴍʙᴇʀ.</b>""" 
@@ -621,7 +621,7 @@ Also your tutorial will be Added Your Group..."""
 
  👇 എങ്ങനെ ചേർക്കാം 👇
 
- കാലഹരണപ്പെടൽ: /set_tutorial വീഡിയോ ലിങ്ക്
+ കാലഹരണപ്പെടൽ: /set_tutorial വീഡിയോ లింక్
 
 നിങ്ങളുടെ ടീം വീഡിയോ ശേഖരണവും പരിശീലിപ്പിക്കും..."""
 
@@ -761,6 +761,4 @@ Example:- /set_caption 📕 File Name: {filename}
 # Don't Remove Credit @VJ_Botz
 # Subscribe YouTube Channel For Amazing Bot @Tech_VJ
 # Ask Doubt on telegram @KingVJ01
-
-
-    
+.
