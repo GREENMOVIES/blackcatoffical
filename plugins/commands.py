@@ -1391,6 +1391,35 @@ async def check_plans_cmd(client, message):
         await asyncio.sleep(2)
         await m.delete()
 
+# --- Naya Code Yahin Se Shuru Hota Hai (New Code Starts Here) ---
+
+@Client.on_callback_query(filters.regex("subscription"))
+async def subscription_callback_handler(client, callback_query):
+    if PREMIUM_AND_REFERAL_MODE == False:
+        await callback_query.answer("Premium mode is currently disabled.", show_alert=True)
+        return
+    
+    # /plan कमांड का पूरा लॉजिक यहाँ कॉपी किया गया है
+    btn = [            
+        [InlineKeyboardButton("ꜱᴇɴᴅ ᴘᴀʏᴍᴇɴᴛ ʀᴇᴄᴇɪᴘᴛ 🧾", url=OWNER_LNK)],
+        [InlineKeyboardButton("⚠️ ᴄʟᴏsᴇ / ᴅᴇʟᴇᴛᴇ ⚠️", callback_data="close_data")]
+    ]
+    reply_markup = InlineKeyboardMarkup(btn)
+    
+    # callback_query.message.reply_photo का उपयोग करके मैसेज भेजें
+    await callback_query.message.reply_photo(
+        photo=PAYMENT_QR,
+        caption=PAYMENT_TEXT,
+        reply_markup=reply_markup
+    )
+    # बटन से लोडिंग स्टेटस हटाने के लिए
+    await callback_query.answer()
+    
+# --- Naya Code Yahan Khatm Hota Hai (New Code Ends Here) ---
+
+
+# --- Ye aapke pichle code ka agla hissa hai (This is the next part of your previous code) ---
+
 @Client.on_message(filters.command("totalrequests") & filters.private & filters.user(ADMINS))
 async def total_requests(client, message):
     if join_db().isActive():
@@ -1410,5 +1439,6 @@ async def purge_requests(client, message):
             parse_mode=enums.ParseMode.MARKDOWN,
             disable_web_page_preview=True
         )
+
 
 
