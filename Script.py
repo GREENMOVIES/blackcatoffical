@@ -256,7 +256,7 @@ If you still can't find it, you can **#request** it:
 
 𝗠ᴇsꜱᴀɢᴇ <b>: {}</b>"""
 
-    CAPTION = """<b>📂 ғɪʟᴇɴᴀᴍᴇ : <a href='t.me://asbhai_bsr'>{file_name}</a>
+    CAPTION = """<b>📂 ғɪʟᴇɴᴀᴍᴇ : <a href='https://t.me://asbhai_bsr'>{file_name}</a>
 
 <b>⚙️ sɪᴢᴇ : {file_size}</b>
 
@@ -765,3 +765,4 @@ Example:- /set_caption 📕 File Name: {filename}
 # Don't Remove Credit @VJ_Botz
 # Subscribe YouTube Channel For Amazing Bot @Tech_VJ
 # Ask Doubt on telegram @KingVJ01
+
