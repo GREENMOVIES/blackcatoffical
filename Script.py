@@ -199,8 +199,14 @@ Nᴀᴍᴇ - {}"""
 ʏᴏᴜ ᴀʀᴇ ᴜꜱɪɴɢ ᴏɴᴇ ᴏꜰ ᴍʏ ᴏʟᴅ ᴍᴇꜱꜱᴀɢᴇꜱ, 
 ᴘʟᴇᴀꜱᴇ ꜱᴇɴᴅ ᴛʜᴇ ʀᴇQᴜᴇꜱᴛ ᴀɢᴀɪɴ."""
 
-    CUDNT_FND = """ɪ ᴄᴏᴜʟᴅɴ'ᴛ ꜰɪɴᴅ ᴀɴʏᴛʜɪɴɢ ʀᴇʟᴀᴛᴇᴅ ᴛᴏ {}
-ᴅɪᴅ ʏᴏᴜ ᴍᴇᴀɴ ᴀɴʏ ᴏɴᴇ ᴏꜰ ᴛʜᴇꜱᴇ?"""
+    CUDNT_FND = """<b>
+🥺 ᴍᴇʀɪ ʙʜᴀɪ/ʙʜᴀɴ, ᴄʜɪɴᴛᴀ ᴍᴛ ᴋᴀʀᴏ! (ᴅᴏɴ'ᴛ ᴡᴏʀʀy ᴍy ʙʀᴏ/ꜱɪꜱ!) 🥺
+
+ɪ ᴄᴏᴜʟᴅɴ'ᴛ ꜰɪɴᴅ ᴀɴy ᴍᴏᴠɪᴇ ʀᴇʟᴀᴛᴇᴅ ᴛᴏ <u>{}</u>.
+
+👉 ᴀᴩᴋɪ ꜱᴩᴇʟʟɪɴɢ ɢᴀʟᴀᴛ ʜᴏ ꜱᴋᴛɪ ʜᴀɪ. ᴋʀɪᴩʏᴀ ɴɪᴄʜᴇ ᴅɪyᴇ ɢᴀyᴇ ɴᴀᴍᴏ ꜱᴇ ᴄʜᴇᴄᴋ ᴋʀ ᴋᴇ ꜰɪʀ ꜱᴇ ʙʜᴇᴊᴇ.
+👉 yᴏᴜʀ ꜱᴩᴇʟʟɪɴɢ ᴍɪɢʜᴛ ʙᴇ ᴡʀᴏɴɢ. ᴩʟᴇᴀꜱᴇ ᴄʜᴇᴄᴋ ʙy ᴜꜱɪɴɢ ᴛʜᴇ ɴᴀᴍᴇꜱ ꜰʀᴏᴍ ᴛʜᴇ ʟɪꜱᴛ ʙᴇʟᴏᴡ:
+</b>"""
 
     I_CUDNT = """
 <b>😔 Sᴏʀʀʏ! Nᴏ ꜰɪʟᴇs ᴡᴇʀᴇ ꜰᴏᴜɴᴅ ꜰᴏʀ ʏᴏᴜʀ ʀᴇǫᴜᴇꜱᴛ: {}</b>
@@ -256,13 +262,7 @@ If you still can't find it, you can **#request** it:
 
 𝗠ᴇsꜱᴀɢᴇ <b>: {}</b>"""
 
-    CAPTION = """<b>📂 ғɪʟᴇɴᴀᴍᴇ : <a href='https://t.me://asbhai_bsr'>{file_name}</a>
-
-<b>⚙️ sɪᴢᴇ : {file_size}</b>
-
-Join 👇
-Movies Search Group : @asfilter_group
-Official Channel : @asbhai_bsr</b>""" 
+    CAPTION = """<b> <a href='https://t.me/asbhai_bsr'>{file_name}</a> \n<b>⚙️ sɪᴢᴇ : {file_size}</b>\n\n𝖩𝗈𝗂𝗇➥ 「@asbhai_bsr @all_movies_webseries_is_here」</b>""" 
 
     IMDB_TEMPLATE_TXT = """
 <b>Query: {qurey}
@@ -765,4 +765,3 @@ Example:- /set_caption 📕 File Name: {filename}
 # Don't Remove Credit @VJ_Botz
 # Subscribe YouTube Channel For Amazing Bot @Tech_VJ
 # Ask Doubt on telegram @KingVJ01
-
