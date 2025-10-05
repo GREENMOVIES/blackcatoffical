@@ -454,7 +454,7 @@ async def start(client, message):
                     ],[
                         InlineKeyboardButton("ʜᴏᴡ ᴛᴏ ᴠᴇʀɪғʏ", url=VERIFY_TUTORIAL)
                     ],[
-                        InlineKeyboardButton("sᴋɪᴘ ᴀᴅᴅ", callback_data="skip_ad")
+                        InlineKeyboardButton("sᴋɪᴘ ᴀᴅᴅ", callback_data="subscription")
                     ]]
                     text = "<b>👋 हे {}!\n\nआपने आज के लिए वेरिफिकेशन पूरा नहीं किया है।\n\nअगर आप अभी Verify करते हैं, तो आपको अगले 24 घंटे तक बॉट का पूरा एक्सेस फ्री में मिलेगा — कोई लिमिट नहीं, कोई रुकावट नहीं।</b>"
                     if PREMIUM_AND_REFERAL_MODE == True:
@@ -519,7 +519,7 @@ async def start(client, message):
                     ],[
                         InlineKeyboardButton("ʜᴏᴡ ᴛᴏ ᴠᴇʀɪғʏ", url=VERIFY_TUTORIAL)
                     ],[
-                        InlineKeyboardButton("sᴋɪᴘ ᴀᴅᴅ", callback_data="skip_ad")
+                        InlineKeyboardButton("sᴋɪᴘ ᴀᴅᴅ", callback_data="subscription")
                     ]]
                     text = "<b>👋 हे {}!\n\nआपने आज के लिए वेरिफिकेशन पूरा नहीं किया है।\n\nअगर आप अभी Verify करते हैं, तो आपको अगले 24 घंटे तक बॉट का पूरा एक्सेस फ्री में मिलेगा — कोई लिमिट नहीं, कोई रुकावट नहीं।</b>"
                     if PREMIUM_AND_REFERAL_MODE == True:
@@ -579,7 +579,7 @@ async def start(client, message):
             ],[
                 InlineKeyboardButton("ʜᴏᴡ ᴛᴏ ᴠᴇʀɪғʏ", url=VERIFY_TUTORIAL)
             ],[
-                InlineKeyboardButton("sᴋɪᴘ ᴀᴅᴅ", callback_data="skip_ad")
+                InlineKeyboardButton("sᴋɪᴘ ᴀᴅᴅ", callback_data="subscription")
             ]]
             text = "<b>👋 हे {}!\n\nआपने आज के लिए वेरिफिकेशन पूरा नहीं किया है।\n\nअगर आप अभी Verify करते हैं, तो आपको अगले 24 घंटे तक बॉट का पूरा एक्सेस फ्री में मिलेगा — कोई लिमिट नहीं, कोई रुकावट नहीं।</b>"
             if PREMIUM_AND_REFERAL_MODE == True:
@@ -1410,4 +1410,5 @@ async def purge_requests(client, message):
             parse_mode=enums.ParseMode.MARKDOWN,
             disable_web_page_preview=True
         )
+
 
