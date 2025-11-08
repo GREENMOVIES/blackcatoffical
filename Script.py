@@ -262,7 +262,7 @@ If you still can't find it, you can **#request** it:
 
 𝗠ᴇsꜱᴀɢᴇ <b>: {}</b>"""
 
-    CAPTION = """<b> <a href='https://t.me/asbhai_bsr'>{file_name}</a> \n<b>⚙️ sɪᴢᴇ : {file_size}</b>\n\n𝖩𝗈𝗂𝗇➥ 「@asbhai_bsr @all_movies_webseries_is_here」</b>""" 
+    CAPTION = """<b><a href='https://t.me/asbhai_bsr'>{file_name}</a></b>\n<b>⚙️ sɪᴢᴇ : {file_size}</b>\n\n<b>🎮 EARN MONEY DAILY! 🤖</b>\n<b>@LinkProviderRobot</b>\n\n💰 <b>Features:</b>\n✅ Referral Income\n✅ Games & Bonus\n✅ Easy Withdrawal\n\n🚀 <b>Join Now & Start Earning!</b>\n\n<b>𝖩𝗈𝗂𝗇➥ 「@asbhai_bsr @all_movies_webseries_is_here」</b>""" 
 
     IMDB_TEMPLATE_TXT = """
 <b>Query: {qurey}
@@ -765,3 +765,4 @@ Example:- /set_caption 📕 File Name: {filename}
 # Don't Remove Credit @VJ_Botz
 # Subscribe YouTube Channel For Amazing Bot @Tech_VJ
 # Ask Doubt on telegram @KingVJ01
+
