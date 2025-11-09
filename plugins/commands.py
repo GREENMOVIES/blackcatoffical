@@ -158,7 +158,7 @@ async def start(client, message):
                 InlineKeyboardButton('ᴀʙᴏᴜᴛ', callback_data='about')
             ],[
                 InlineKeyboardButton('ᴊᴏɪɴ ᴜᴘᴅᴀᴛᴇ ᴄʜᴀɴɴᴇʟ', url=CHNL_LNK)
-             ]]
+            ]]
         if CLONE_MODE == True:
             buttons.append([InlineKeyboardButton('ᴄʀᴇᴀᴛᴇ ᴏᴡɴ ᴄʟᴏɴᴇ ʙᴏᴛ', callback_data='clone')])
         reply_markup = InlineKeyboardMarkup(buttons)      
@@ -1404,6 +1404,7 @@ async def purge_requests(client, message):
             parse_mode=enums.ParseMode.MARKDOWN,
             disable_web_page_preview=True
         )
+
 
 
 
