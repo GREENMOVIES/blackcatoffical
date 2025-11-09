@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="https://i.ibb.co/dJ0gpJf1/photo-2025-06-16-12-07-05-7516517596376596504.jpg" alt="VJ-Filter-Bot Logo">
+  <img src="https://graph.org/file/fced095d49360fbede0ee-bee515b7a055f8f7bf.jpg" alt="VJ-Filter-Bot Logo">
 </p>
 <h1 align="center">
   VJ FILTER BOT
 </h1>
 
-![Typing SVG](https://readme-typing-svg.herokuapp.com/?lines=Welcome+To+VJ+Filter+Bot!)
+![Typing SVG](https://readme-typing-svg.herokuapp.com/?lines=Welcome+To+BLACK+CAT+OFFICIAL+Filter+Bot!)
 </p>
 
 ## Main Feature 
@@ -35,7 +35,7 @@
 
 - Note : You Can Turn On Or Off Every Feature, Just Use Which Feature You Want By Turning It On.
 
-Join My <a href='https://telegram.me/vj_bots'>Update Channel</a> For More Update Regarding Repo.</b>
+Join My <a href='https://telegram.me/greenmoviesbot>Update Channel</a> For More Update Regarding Repo.</b>
 
 ### How To Deploy : [Video Tutorial](https://youtu.be/3SJR7vH2kRo)
 
@@ -204,4 +204,5 @@ Selling The Codes To Other People For Money Is *Strictly Prohibited*.</b>
 </pre>
 </p>
 </details>
+
 
