@@ -75,7 +75,7 @@ Cᴏᴍᴍᴀɴᴅs Aɴᴅ Usᴀɢᴇ:
 2. ᴛʜɪꜱ ʙᴏᴛ ꜱᴜᴘᴘᴏʀᴛꜱ ʙᴜᴛᴛᴏɴꜱ ᴡɪᴛʜ ᴀɴʏ ᴛᴇʟᴇɢʀᴀᴍ ᴍᴇᴅɪᴀ ᴛʏᴘᴇ.
 3. ʙᴜᴛᴛᴏɴꜱ ꜱʜᴏᴜʟᴅ ʙᴇ ᴘʀᴏᴘᴇʀʟʏ ᴘᴀʀꜱᴇᴅ ᴀꜱ ᴍᴀʀᴋᴅᴏᴡɴ ꜰᴏʀᴍᴀᴛ
 <b>ᴜʀʟ ʙᴜᴛᴛᴏɴꜱ:</b>
-<code>[Button Text](buttonurl:https://t.me/vj_bots/3)</code>
+<code>[Button Text](buttonurl:https://t.me/AR_bots/3)</code>
 <b>ᴀʟᴇʀᴛ ʙᴜᴛᴛᴏɴꜱ:</b>
 <code>[Button Text](buttonalert:ᴛʜɪꜱ ɪꜱ ᴀɴ ᴀʟᴇʀᴛ ᴍᴇꜱꜱᴀɢᴇ)</code>"""
 
@@ -491,17 +491,17 @@ Aᴠᴀɪʟᴀʙʟᴇ ᴄᴏᴍᴍᴀɴᴅs:
 
  எப்படி மற்றும் என்ன செய்ய வேண்டும்
 
- படி 1: இந்த VJ-FILTER-BOT போட் உங்கள் குழுவை நிர்வாகியாக்குங்கள்
+ படி 1: இந்த  போட் உங்கள் குழுவை நிர்வாகியாக்குங்கள்
 
  படி 2: உங்கள் இணையதளம் மற்றும் API ஐச் சேர்க்கவும்
 
- Exp: /shortlink xtz.in 4b392f8eb6ad711fbe58
+ Exp: 
 
  வீடியோவைச் சேர்க்கவும்
 
  👇 எப்படி சேர்ப்பது 👇
 
- Exp: /set_tutorial video link
+ Exp:  video link
 
 மேலும் உங்கள் குழுவில் பயிற்சி வீடியோ தொகுப்பு ஆகிடும்..."""
 
@@ -518,17 +518,17 @@ Hey <a href='tg://settings'>ᴍʏ ғʀɪᴇɴᴅ</a>
 
  How and what to do
 
- Step 1: Administer this VJ-FILTER-BOT bot to your group
+ Step 1: Administer this bot to your group
 
  Step 2: Add your website and API
 
- Exp: /shortlink xtz.in 4b392f8eb6ad711fbe58
+ Exp: 
 
  Add a video
 
  👇 How to add 👇
 
- Exp: /set_tutorial video link
+ Exp: video link
 
 Also your tutorial will be Added Your Group..."""
 
@@ -545,17 +545,17 @@ Also your tutorial will be Added Your Group..."""
 
  ఎలా మరియు ఏమి చేయాలి
 
- దశ 1: ఈ VJ-FILTER-BOT బాట్‌ని మీ సమూహానికి నిర్వహించండి
+ దశ 1: ఈ -BOT బాట్‌ని మీ సమూహానికి నిర్వహించండి
 
  దశ 2: మీ వెబ్‌సైట్ మరియు APIని జోడించండి
 
- గడువు: /shortlink xtz.in 4b392f8eb6ad711fbe58
+ గడువు: 
 
  వీడియోను జోడించండి
 
  👇 ఎలా జోడించాలి 👇
 
- గడువు: /set_tutorial వీడియో లింక్
+ గడువు:  వీడియో లింక్
 
 అలాగే మీ బృందం వీడియో సేకరణకు శిక్షణ ఇస్తుంది..."""
 
@@ -576,13 +576,13 @@ Also your tutorial will be Added Your Group..."""
 
  चरण 2: अपनी वेबसाइट और एपीआई जोड़ें
 
- एक्सप: /shortlink xtz.in 4b392f8eb6ad711fbe58
+ एक्सप: 
 
  एक वीडियो जोड़ें
 
  👇कैसे जोड़ें 👇
 
- ऍक्स्प: /set_tutorial वीडियो लिंक
+ ऍक्स्प:  वीडियो लिंक
 
 साथ ही आपकी टीम वीडियो संग्रह का प्रशिक्षण भी देगी..."""
 
@@ -603,13 +603,13 @@ Also your tutorial will be Added Your Group..."""
 
  ഘട്ടം 2: നിങ്ങളുടെ വെബ്‌സൈറ്റും API-യും ചേർക്കുക
 
- കാലഹരണപ്പെടൽ: /shortlink xtz.in 4b392f8eb6ad711fbe58
+ കാലഹരണപ്പെടൽ: 
 
  ഒരു വീഡിയോ ചേർക്കുക
 
  👇 എങ്ങനെ ചേർക്കാം 👇
 
- കാലഹരണപ്പെടൽ: /set_tutorial വീഡിയോ ലിങ്ക്
+ കാലഹരണപ്പെടൽ:  വീഡിയോ ലിങ്ക്
 
 നിങ്ങളുടെ ടീം വീഡിയോ ശേഖരണവും പരിശീലിപ്പിക്കും..."""
 
@@ -626,17 +626,17 @@ Also your tutorial will be Added Your Group..."""
 
  کیسے اور کیا کرنا ہے۔
 
- مرحلہ 1: اپنے گروپ میں اس VJ-FILTER-BOT بوٹ کا انتظام کریں۔
+ مرحلہ 1: اپنے گروپ میں اس BOT بوٹ کا انتظام کریں۔
 
  مرحلہ 2: اپنی ویب سائٹ اور API شامل کریں۔
 
- Exp: /shortlink xtz.in 4b392f8eb6ad711fbe58
+ Exp: 
 
  ایک ویڈیو شامل کریں۔
 
  👇 کیسے شامل کریں 👇
 
- Exp: /set_tutorial ویڈیو لنک
+ Exp:  ویڈیو لنک
 
 نیز آپ کی ٹیم ویڈیو جمع کرنے کی تربیت دے گی..."""
 
@@ -752,4 +752,5 @@ Example:- /set_caption 📕 File Name: {filename}
 
 
     
+
 
