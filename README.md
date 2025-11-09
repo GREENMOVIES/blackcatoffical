@@ -1,9 +1,10 @@
 <p align="center">
-  <img src="https://graph.org/file/fced095d49360fbede0ee-bee515b7a055f8f7bf.jpg" alt="VJ-Filter-Bot Logo">
+  <h1>
+   CREATED BY TEAM GREENMOVIES
+  </h1>
 </p>
 <h1 align="center">
-  VJ FILTER BOT
-</h1>
+  BLACK CAT OFFICIAL
 
 ![Typing SVG](https://readme-typing-svg.herokuapp.com/?lines=Welcome+To+BLACK+CAT+OFFICIAL+Filter+Bot!)
 </p>
@@ -204,5 +205,6 @@ Selling The Codes To Other People For Money Is *Strictly Prohibited*.</b>
 </pre>
 </p>
 </details>
+
 
 
