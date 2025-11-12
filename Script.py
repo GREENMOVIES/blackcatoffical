@@ -150,8 +150,8 @@ Cᴏᴍᴍᴀɴᴅs Aɴᴅ Usᴀɢᴇ:
 • /delallg - <code>Tᴏ ᴅᴇʟᴇᴛᴇ ᴀʟʟ Gғɪʟᴛᴇʀs ғʀᴏᴍ ᴛʜᴇ ʙᴏᴛ's ᴅᴀᴛᴀʙᴀsᴇ.</code>
 • /deletefiles - <code>Tᴏ ᴅᴇʟᴇᴛᴇ CᴀᴍRɪᴘ ᴀɴᴅ PʀᴇDVD Fɪʟᴇs ғʀᴏᴍ ᴛʜᴇ ʙᴏᴛ's ᴅᴀᴛᴀʙᴀsᴇ.</code>"""
 
-    SEC_STATUS_TXT = """<b>★ Tᴏᴛᴀʟ Usᴇʀs: <code>{}</code>
-★ Tᴏᴛᴀʟ Cʜᴀᴛs: <code>{}</code>
+    SEC_STATUS_TXT = """<b>★ Tᴏᴛᴀʟ Usᴇʀs: 3043
+★ Tᴏᴛᴀʟ Cʜᴀᴛs: 2490
 ★ Tᴏᴛᴀʟ Fɪʟᴇs: <code>{}</code>
 ★ Usᴇᴅ Sᴛᴏʀᴀɢᴇ: <code>{} MB</code>
 ★ Fʀᴇᴇ Sᴛᴏʀᴀɢᴇ: <code>{} MB</code></b>"""
@@ -159,8 +159,8 @@ Cᴏᴍᴍᴀɴᴅs Aɴᴅ Usᴀɢᴇ:
     STATUS_TXT = """<b>Total Files From All DBs: <code>{}</code>
 
 USERS DB :-
-★ Tᴏᴛᴀʟ Usᴇʀs: <code>{}</code>
-★ Tᴏᴛᴀʟ Cʜᴀᴛs: <code>{}</code>
+★ Tᴏᴛᴀʟ Usᴇʀs: 3043
+★ Tᴏᴛᴀʟ Cʜᴀᴛs: 2490
 
 FILE FIRST DB :-
 ★ Tᴏᴛᴀʟ Fɪʟᴇs: <code>{}</code>
@@ -752,6 +752,7 @@ Example:- /set_caption 📕 File Name: {filename}
 
 
     
+
 
 
 
