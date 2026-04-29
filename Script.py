@@ -244,11 +244,16 @@ Nᴀᴍᴇ - {}"""
 
 𝗠𝗲𝘀𝘀𝗮𝗴𝗲 <b>: {}</b>"""
 
-    CAPTION = """<b>📂 ғɪʟᴇɴᴀᴍᴇ : {file_name}
+    CAPTION = """📁 {file_name}
 
-<b>⚙️ sɪᴢᴇ : {file_size}</b>
-  FILE BY :-@GREENMOVIEBOT
-  more more movies in any language follow as""" 
+📊 Quality: {quality}
+⚙️ Size: {file_size}
+🎬 Season: {season} | Episode: {episode}
+🌐 Language: {language}
+📅 Year: {year}
+⏱️ Duration: {duration}
+📦 Format: {format}
+ ------------------ @greenmoviebot -----------------------------""" 
 
     IMDB_TEMPLATE_TXT = """
 <b>Query: {qurey}
