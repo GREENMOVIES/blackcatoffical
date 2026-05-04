@@ -243,7 +243,7 @@ Nᴀᴍᴇ - {}"""
 𝗡𝗮𝗺𝗲 <b>: {}</b>
 
 𝗠𝗲𝘀𝘀𝗮𝗴𝗲 <b>: {}</b>"""
-<b>📂 {file_name}</b>
+CAPTION = """ <b>📂 {file_name}</b>
 
 ⚙️ Size: {file_size}
 
