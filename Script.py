@@ -243,6 +243,12 @@ Nᴀᴍᴇ - {}"""
     CAPTION = """<b>📂 ғɪʟᴇɴᴀᴍᴇ : {file_name}
 
 <b>⚙️ sɪᴢᴇ : {file_size}</b>
+<b>📊 Quality: {quality}</b>
+<b>🎬 Season: {season}</b>| <b>Episode: {episode}</b>
+<b>🌐 Language: {language}</b>
+<b>📅 Year: {year}</b>
+<b>⏱️ Duration: {duration}</b>
+<b>📦 Format: {format}</b>
   FILE BY :-@GREENMOVIEBOT
   more more movies in any language follow as""" 
 
