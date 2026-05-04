@@ -244,15 +244,18 @@ Nᴀᴍᴇ - {}"""
 
 𝗠𝗲𝘀𝘀𝗮𝗴𝗲 <b>: {}</b>"""
 
-    CAPTION = """📁 {file_name}
+    CAPTION = """
+<b>📁 {file_name}</b>
 
-📊 Quality: {quality}
-⚙️ Size: {file_size}
-🎬 Season: {season} | Episode: {episode}
-🌐 Language: {language}
-📅 Year: {year}
-⏱️ Duration: {duration}
-📦 Format: {format}
+<b>📊 Quality:</b> {quality}
+<b>⚙️ Size:</b> {file_size}
+<b>🎬 Season:</b> {season} | <b>Episode:</b> {episode}
+<b>🌐 Language:</b> {language}
+<b>📅 Year:</b> {year}
+<b>⏱️ Duration:</b> {duration}
+<b>📦 Format:</b> {format}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  ------------------ @greenmoviebot -----------------------------""" 
 
     IMDB_TEMPLATE_TXT = """
