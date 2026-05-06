@@ -6,6 +6,11 @@ from info import *
 
 
 async def ping_server():
+    if not URL:
+        logging.info("URL not provided, Keep-Alive service not started.")
+        return
+    
+    logging.info(f"Keep-Alive service started. Pinging {URL} every {PING_INTERVAL} seconds.")
     sleep_time = PING_INTERVAL
     while True:
         await asyncio.sleep(sleep_time)

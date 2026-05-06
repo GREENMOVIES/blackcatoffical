@@ -134,7 +134,7 @@ TUTORIAL = environ.get('TUTORIAL', '') # How Open Shortner Link Video Link , Cha
 # Others
 CACHE_TIME = int(environ.get('CACHE_TIME', 1800))
 MAX_B_TN = environ.get("MAX_B_TN", "5")
-PORT = environ.get("PORT", "8080")
+PORT = environ.get("PORT", "8000")
 MSG_ALRT = environ.get('MSG_ALRT', 'Hello My Dear Friends ❤️')
 CUSTOM_FILE_CAPTION = environ.get("CUSTOM_FILE_CAPTION", f"{script.CAPTION}")
 BATCH_FILE_CAPTION = environ.get("BATCH_FILE_CAPTION", CUSTOM_FILE_CAPTION)
@@ -161,12 +161,10 @@ STREAM_MODE = bool(environ.get('STREAM_MODE', True)) # Set True or False
 # If Stream Mode Is True Then Fill All Required Variable, If False Then Don't Fill.
 MULTI_CLIENT = False
 SLEEP_THRESHOLD = int(environ.get('SLEEP_THRESHOLD', '60'))
-PING_INTERVAL = int(environ.get("PING_INTERVAL", "1200"))  # 20 minutes
-if 'DYNO' in environ:
-    ON_HEROKU = True
-else:
-    ON_HEROKU = False
-URL = environ.get("URL", "https://testofvjfilter-1fa60b1b8498.herokuapp.com/")
+PING_INTERVAL = int(environ.get("PING_INTERVAL", "600"))  # 10 minutes
+ON_HEROKU = 'DYNO' in environ
+ON_KOYEB = 'KOYEB_PROJECT_ID' in environ or 'KOYEB_APP_NAME' in environ
+URL = environ.get("URL", "")
 
 
 # Rename Info : If True Then Bot Rename File Else Not
