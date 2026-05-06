@@ -242,7 +242,8 @@ Nᴀᴍᴇ - {}"""
 
     CAPTION = """<b>📂 ғɪʟᴇɴᴀᴍᴇ : {file_name}
 
-<b>⚙️ sɪᴢᴇ : {file_size}</b>""" 
+<b>⚙️ sɪᴢᴇ : {file_size}</b>
+BY YOUR @GREENMOVIEBOT""" 
 
     IMDB_TEMPLATE_TXT = """
 <b>Query: {qurey}
