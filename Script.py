@@ -1,7 +1,20 @@
 class script(object):
     START_TXT = """<b><blockquote>ʜᴇʟʟᴏ {} 👋,</blockquote>
-    
-ɪ ᴀᴍ ʟᴀᴛᴇꜱᴛ ᴀᴅᴠᴀɴᴄᴇᴅ ᴀɴᴅ ᴘᴏᴡᴇʀꜰᴜʟ ᴀᴜᴛᴏ ꜰɪʟᴛᴇʀ ʙᴏᴛ. ʏᴏᴜ ᴄᴀɴ ᴜꜱᴇ ᴍᴇ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ ᴛᴏ ᴇᴀʀɴ ᴜɴʟɪᴍɪᴛᴇᴅ ᴍᴏɴᴇʏ...💸</b>"""
+    🐈‍⬛ Welcome to BLACK CAT 🖤
+
+✨ The Ultimate Advanced Auto Filter Bot ✨
+
+⚡ Fast • Smart • Powerful • Reliable
+
+🔎 Instantly find files in your group
+🎬 Movies, Series, Anime & More
+🚀 Lightning-fast auto filtering
+🛡 Smooth and stable performance
+💬 Easy to use for everyone
+
+📌 Add BLACK CAT to your group and enjoy a smarter searching experience.
+
+🖤 BLACK CAT — Silent, Fast & Deadly Accurate.</b>"""
 
     CLONE_START_TXT = """<b><blockquote>ʜᴇʟʟᴏ {}, ᴍʏ ɴᴀᴍᴇ <a href=https://t.me/{}>{}</a></blockquote>
     
