@@ -19,6 +19,10 @@ routes = web.RouteTableDef()
 async def root_route_handler(request):
     return web.json_response("BenFilterBot")
 
+@routes.get("/ping", allow_head=True)
+async def ping_handler(request):
+    return web.json_response({"status": "alive"})
+
 @routes.get(r"/watch/{path:\S+}", allow_head=True)
 async def stream_handler(request: web.Request):
     try:

@@ -10,17 +10,29 @@ async def ping_server():
         logging.info("URL not provided, Keep-Alive service not started.")
         return
     
+    # Wait for the web server to fully start
+    await asyncio.sleep(30)
+    
     logging.info(f"Keep-Alive service started. Pinging {URL} every {PING_INTERVAL} seconds.")
-    sleep_time = PING_INTERVAL
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
+
     while True:
-        await asyncio.sleep(sleep_time)
         try:
             async with aiohttp.ClientSession(
-                timeout=aiohttp.ClientTimeout(total=10)
+                timeout=aiohttp.ClientTimeout(total=10),
+                headers=headers
             ) as session:
                 async with session.get(URL) as resp:
-                    logging.info("Pinged server with response: {}".format(resp.status))
-        except TimeoutError:
-            logging.warning("Couldn't connect to the site URL..!")
+                    if resp.status == 200:
+                        logging.info(f"Keep-Alive: Successfully pinged {URL} (Status: {resp.status})")
+                    else:
+                        logging.warning(f"Keep-Alive: Pinged {URL} but got status {resp.status}")
+        except aiohttp.ClientError as e:
+            logging.error(f"Keep-Alive: Connection error while pinging {URL}: {e}")
         except Exception:
-            traceback.print_exc()
+            logging.error(f"Keep-Alive: Unexpected error:\n{traceback.format_exc()}")
+        
+        await asyncio.sleep(PING_INTERVAL)
