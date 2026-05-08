@@ -135,6 +135,36 @@ async def set_skip_number(bot, message):
         await message.reply("Give me a skip number")
 
 
+@Client.on_message(filters.command('store') & filters.user(ADMINS))
+async def store_files(bot, message):
+    from info import CHANNELS
+    if not CHANNELS:
+        return await message.reply("<b>No channels found in Environment Variables (CHANNELS).</b>")
+    
+    msg = await message.reply("<b>Starting Automatic File Storing... ⏳</b>")
+    for chat_id in CHANNELS:
+        try:
+            chat = await bot.get_chat(chat_id)
+        except Exception as e:
+            await message.reply(f"<b>Error with channel {chat_id}: {e}</b>")
+            continue
+            
+        try:
+            last_msg_id = 0
+            async for m in bot.get_chat_history(chat.id, limit=1):
+                last_msg_id = m.id
+            if last_msg_id == 0:
+                continue
+        except Exception as e:
+            await message.reply(f"<b>Error fetching history for {chat.title}: {e}</b>")
+            continue
+
+        await msg.edit(f"<b>Indexing Channel: {chat.title}</b>")
+        await store_files_to_db(last_msg_id, chat.id, msg, bot)
+    
+    await msg.edit("<b>Automatic File Storing Completed! ✅</b>")
+
+
 async def index_files_to_db(lst_msg_id, chat, msg, bot):
     total_files = 0
     duplicate = 0
@@ -204,3 +234,76 @@ async def index_files_to_db(lst_msg_id, chat, msg, bot):
                 await asyncio.sleep(e.value)
             except:
                 pass
+
+
+async def store_files_to_db(lst_msg_id, chat, msg, bot):
+    total_files = 0
+    duplicate = 0
+    errors = 0
+    deleted = 0
+    no_media = 0
+    unsupported = 0
+    async with lock:
+        try:
+            current = temp.CURRENT
+            temp.CANCEL = False
+            import time
+            last_update_time = time.time()
+            async for message in bot.iter_messages(chat, lst_msg_id, temp.CURRENT):
+                if temp.CANCEL:
+                    await msg.edit(f"Successfully Cancelled!!\n\nSaved <code>{total_files}</code> files to dataBase!\nDuplicate Files Skipped: <code>{duplicate}</code>\nDeleted Messages Skipped: <code>{deleted}</code>\nNon-Media messages skipped: <code>{no_media + unsupported}</code>(Unsupported Media - `{unsupported}` )\nErrors Occurred: <code>{errors}</code>")
+                    break
+                current += 1
+                if (time.time() - last_update_time) > 10:
+                    last_update_time = time.time()
+                    can = [[InlineKeyboardButton('Cancel', callback_data='index_cancel')]]
+                    reply = InlineKeyboardMarkup(can)
+                    try:
+                        await msg.edit_text(
+                            text=f"Total messages fetched: <code>{current}</code>\nTotal messages saved: <code>{total_files}</code>\nDuplicate Files Skipped: <code>{duplicate}</code>\nDeleted Messages Skipped: <code>{deleted}</code>\nNon-Media messages skipped: <code>{no_media + unsupported}</code>(Unsupported Media - `{unsupported}` )\nErrors Occurred: <code>{errors}</code>",
+                            reply_markup=reply
+                        )
+                    except FloodWait as e:
+                        await asyncio.sleep(e.value)
+                    except MessageNotModified:
+                        pass
+                if message.empty:
+                    deleted += 1
+                    continue
+                elif not message.media:
+                    no_media += 1
+                    continue
+                elif message.media not in [enums.MessageMediaType.VIDEO, enums.MessageMediaType.AUDIO, enums.MessageMediaType.DOCUMENT]:
+                    unsupported += 1
+                    continue
+                media = getattr(message, message.media.value, None)
+                if not media:
+                    unsupported += 1
+                    continue
+                media.caption = message.caption
+                aynav, vnay = await save_file(media)
+                if aynav:
+                    total_files += 1
+                elif vnay == 0:
+                    duplicate += 1
+                elif vnay == 2:
+                    errors += 1
+        except FloodWait as e:
+            await asyncio.sleep(e.value)
+        except Exception as e:
+            logger.exception(e)
+            try:
+                k = await msg.edit(f'Error: {e}')
+                await k.reply_text(f'Succesfully saved <code>{total_files}</code> to dataBase!\nDuplicate Files Skipped: <code>{duplicate}</code>\nDeleted Messages Skipped: <code>{deleted}</code>\nNon-Media messages skipped: <code>{no_media + unsupported}</code>(Unsupported Media - `{unsupported}` )\nErrors Occurred: <code>{errors}</code>')
+                await k.reply_text("**If You Get Message Not Modified Error Then Skip Your Saved File Then Index Again**")
+            except:
+                pass
+        else:
+            try:
+                await msg.edit(f'Succesfully saved <code>{total_files}</code> to dataBase!\nDuplicate Files Skipped: <code>{duplicate}</code>\nDeleted Messages Skipped: <code>{deleted}</code>\nNon-Media messages skipped: <code>{no_media + unsupported}</code>(Unsupported Media - `{unsupported}` )\nErrors Occurred: <code>{errors}</code>')
+            except FloodWait as e:
+                await asyncio.sleep(e.value)
+            except:
+                pass
+        finally:
+            temp.CURRENT = current
