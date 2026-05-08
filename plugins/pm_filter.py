@@ -281,7 +281,7 @@ async def years_cb_handler(client: Client, query: CallbackQuery):
     except:
         pass
     btn = []
-    for i in range(0, len(YEARS)-1, 4):
+    for i in range(0, len(YEARS), 4):
         row = []
         for j in range(4):
             if i+j < len(YEARS):
@@ -442,7 +442,7 @@ async def episodes_cb_handler(client: Client, query: CallbackQuery):
     except:
         pass
     btn = []
-    for i in range(0, len(EPISODES)-1, 4):
+    for i in range(0, len(EPISODES), 4):
         row = []
         for j in range(4):
             if i+j < len(EPISODES):
@@ -625,7 +625,7 @@ async def languages_cb_handler(client: Client, query: CallbackQuery):
     except:
         pass
     btn = []
-    for i in range(0, len(LANGUAGES)-1, 2):
+    for i in range(0, len(LANGUAGES), 2):
         btn.append([
             InlineKeyboardButton(
                 text=LANGUAGES[i].title(),
@@ -788,7 +788,7 @@ async def seasons_cb_handler(client: Client, query: CallbackQuery):
     except:
         pass
     btn = []
-    for i in range(0, len(SEASONS)-1, 2):
+    for i in range(0, len(SEASONS), 2):
         btn.append([
             InlineKeyboardButton(
                 text=SEASONS[i].title(),
@@ -940,7 +940,7 @@ async def qualities_cb_handler(client: Client, query: CallbackQuery):
     except:
         pass
     btn = []
-    for i in range(0, len(QUALITIES)-1, 2):
+    for i in range(0, len(QUALITIES), 2):
         btn.append([
             InlineKeyboardButton(
                 text=QUALITIES[i].title(),
