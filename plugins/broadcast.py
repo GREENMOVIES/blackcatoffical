@@ -1,6 +1,6 @@
-# Don't Remove Credit @VJ_Bots
-# Subscribe YouTube Channel For Amazing Bot @Tech_VJ
-# Ask Doubt on telegram @KingVJ01
+# Don't Remove Credit #blackcatoffical
+# Subscribe YouTube Channel For Amazing Bot #blackcatoffical
+# Ask Doubt on telegram edison
 
 import datetime, time, asyncio
 from pyrogram import Client, filters
@@ -48,9 +48,9 @@ async def pm_broadcast(bot, message):
     except Exception as e:
         print(f"error: {e}")
 
-# Don't Remove Credit Tg - @VJ_Bots
-# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
-# Ask Doubt on telegram @KingVJ01
+# Don't Remove Credit Tg - #blackcatoffical
+# Subscribe YouTube Channel For Amazing Bot https://youtube.com/#blackcatoffical
+# Ask Doubt on telegram edison
 
 @Client.on_message(filters.command("grp_broadcast") & filters.user(ADMINS))
 async def broadcast_group(bot, message):

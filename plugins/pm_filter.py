@@ -133,7 +133,7 @@ async def next_page(bot, query):
             InlineKeyboardButton("ʏᴇᴀʀs", callback_data=f"years#{key}")
         ])
     else:
-        btn = []
+        btn = 
         btn.insert(0, 
             [
                 InlineKeyboardButton('ǫᴜᴀʟɪᴛʏ', callback_data=f"qualities#{key}"),
@@ -280,9 +280,9 @@ async def years_cb_handler(client: Client, query: CallbackQuery):
         search = search.replace(' ', '_')
     except:
         pass
-    btn = []
+    btn = 
     for i in range(0, len(YEARS), 4):
-        row = []
+        row = 
         for j in range(4):
             if i+j < len(YEARS):
                 row.append(
@@ -365,7 +365,7 @@ async def filter_yearss_cb_handler(client: Client, query: CallbackQuery):
             InlineKeyboardButton("ʏᴇᴀʀs", callback_data=f"years#{key}")
         ])
     else:
-        btn = []
+        btn = 
         btn.insert(0, 
             [
                 InlineKeyboardButton(f'ǫᴜᴀʟɪᴛʏ', callback_data=f"qualities#{key}"),
@@ -441,9 +441,9 @@ async def episodes_cb_handler(client: Client, query: CallbackQuery):
         search = search.replace(' ', '_')
     except:
         pass
-    btn = []
+    btn = 
     for i in range(0, len(EPISODES), 4):
-        row = []
+        row = 
         for j in range(4):
             if i+j < len(EPISODES):
                 row.append(
@@ -498,7 +498,7 @@ async def filter_episodes_cb_handler(client: Client, query: CallbackQuery):
     BUTTONS[key] = search
 
     # Episode mapping for better accuracy
-    files = []
+    files = 
     search_variants = [search]
     if lang != "homepage":
         e_num = lang.replace("E", "")
@@ -546,7 +546,7 @@ async def filter_episodes_cb_handler(client: Client, query: CallbackQuery):
             InlineKeyboardButton("ʏᴇᴀʀs", callback_data=f"years#{key}")
         ])
     else:
-        btn = []
+        btn = 
         btn.insert(0, 
             [
                 InlineKeyboardButton(f'ǫᴜᴀʟɪᴛʏ', callback_data=f"qualities#{key}"),
@@ -624,7 +624,7 @@ async def languages_cb_handler(client: Client, query: CallbackQuery):
         search = search.replace(' ', '_')
     except:
         pass
-    btn = []
+    btn = 
     for i in range(0, len(LANGUAGES), 2):
         btn.append([
             InlineKeyboardButton(
@@ -709,7 +709,7 @@ async def filter_languages_cb_handler(client: Client, query: CallbackQuery):
             InlineKeyboardButton("ʏᴇᴀʀs", callback_data=f"years#{key}")
         ])
     else:
-        btn = []
+        btn = 
         btn.insert(0, 
             [
                 InlineKeyboardButton(f'ǫᴜᴀʟɪᴛʏ', callback_data=f"qualities#{key}"),
@@ -787,7 +787,7 @@ async def seasons_cb_handler(client: Client, query: CallbackQuery):
         search = search.replace(' ', '_')
     except:
         pass
-    btn = []
+    btn = 
     for i in range(0, len(SEASONS), 2):
         btn.append([
             InlineKeyboardButton(
@@ -888,7 +888,7 @@ async def filter_seasons_cb_handler(client: Client, query: CallbackQuery):
             InlineKeyboardButton("ʏᴇᴀʀs", callback_data=f"years#{key}")
         ])
     else:
-        btn = []
+        btn = 
         btn.insert(0, 
             [
                 InlineKeyboardButton(f'ǫᴜᴀʟɪᴛʏ', callback_data=f"qualities#{key}"),
@@ -939,7 +939,7 @@ async def qualities_cb_handler(client: Client, query: CallbackQuery):
         search = search.replace(' ', '_')
     except:
         pass
-    btn = []
+    btn = 
     for i in range(0, len(QUALITIES), 2):
         btn.append([
             InlineKeyboardButton(
@@ -1013,7 +1013,7 @@ async def filter_qualities_cb_handler(client: Client, query: CallbackQuery):
             InlineKeyboardButton("ʏᴇᴀʀs", callback_data=f"years#{key}")
         ])
     else:
-        btn = []
+        btn = 
         btn.insert(0, 
             [
                 InlineKeyboardButton(f'ǫᴜᴀʟɪᴛʏ', callback_data=f"qualities#{key}"),
@@ -1264,7 +1264,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 "Tʜᴇʀᴇ ᴀʀᴇ ɴᴏ ᴀᴄᴛɪᴠᴇ ᴄᴏɴɴᴇᴄᴛɪᴏɴs!! Cᴏɴɴᴇᴄᴛ ᴛᴏ sᴏᴍᴇ ɢʀᴏᴜᴘs ғɪʀsᴛ.",
             )
             return await query.answer(MSG_ALRT)
-        buttons = []
+        buttons = 
         for groupid in groupids:
             try:
                 ttl = await client.get_chat(int(groupid))
@@ -1930,9 +1930,6 @@ async def cb_handler(client: Client, query: CallbackQuery):
         )
     elif query.data == "about":
         buttons = [[
-            InlineKeyboardButton('Sᴜᴘᴘᴏʀᴛ Gʀᴏᴜᴘ', url=GRP_LNK),
-            InlineKeyboardButton('Sᴏᴜʀᴄᴇ Cᴏᴅᴇ', url="https://github.com/VJBots/VJ-FILTER-BOT")
-        ],[
             InlineKeyboardButton('Hᴏᴍᴇ', callback_data='start'),
             InlineKeyboardButton('Cʟᴏsᴇ', callback_data='close_data')
         ]]
@@ -2596,7 +2593,7 @@ async def auto_filter(client, name, msg, reply_msg, ai_search, spoll=False):
             InlineKeyboardButton("ʏᴇᴀʀs", callback_data=f"years#{key}")
         ])
     else:
-        btn = []
+        btn = 
         btn.insert(0, 
             [
                 InlineKeyboardButton(f'ǫᴜᴀʟɪᴛʏ', callback_data=f"qualities#{key}"),
@@ -2759,7 +2756,7 @@ async def advantage_spell_chok(client, name, msg, reply_msg, vj_search):
         await asyncio.sleep(30)
         await k.delete()
         return
-    movielist = []
+    movielist = 
     if not movies:
         reqst_gle = mv_rqst.replace(" ", "+")
         button = [[
@@ -2777,7 +2774,7 @@ async def advantage_spell_chok(client, name, msg, reply_msg, vj_search):
     if AI_SPELL_CHECK == True and vj_search == True:
         vj_search_new = False
         vj_ai_msg = await reply_msg.edit_text("<b><i>I Am Trying To Find Your Movie With Your Wrong Spelling.</i></b>")
-        movienamelist = []
+        movienamelist = 
         movienamelist += [movie.get('title') for movie in movies]
         for techvj in movienamelist:
             try:
@@ -2841,7 +2838,7 @@ async def manual_filters(client, message, text=False):
             if btn is not None:
                 try:
                     if fileid == "None":
-                        if btn == "[]":
+                        if btn == "":
                             joelkb = await client.send_message(
                                 group_id, 
                                 reply_text, 
@@ -2928,7 +2925,7 @@ async def manual_filters(client, message, text=False):
                                     ai_search = True
                                     reply_msg = await message.reply_text(f"<b><i>Searching For {message.text} 🔍</i></b>")
                                     await auto_filter(client, message.text, message, reply_msg, ai_search)
-                    elif btn == "[]":
+                    elif btn == "":
                         joelkb = await client.send_cached_media(
                             group_id,
                             fileid,
@@ -3036,7 +3033,7 @@ async def global_filters(client, message, text=False):
             if btn is not None:
                 try:
                     if fileid == "None":
-                        if btn == "[]":
+                        if btn == "":
                             joelkb = await client.send_message(
                                 group_id, 
                                 reply_text, 
@@ -3148,7 +3145,7 @@ async def global_filters(client, message, text=False):
                                     if settings['auto_delete']:
                                         await joelkb.delete()
 
-                    elif btn == "[]":
+                    elif btn == "":
                         joelkb = await client.send_cached_media(
                             group_id,
                             fileid,

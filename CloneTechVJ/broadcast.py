@@ -1,8 +1,8 @@
-# Don't Remove Credit @VJ_Botz
-# Subscribe YouTube Channel For Amazing Bot @Tech_VJ
-# Ask Doubt on telegram @KingVJ01
+# Don't Remove Credit #blackcatoffical
+# Subscribe YouTube Channel For Amazing Bot #blackcatoffical
+# Ask Doubt on telegram edison
 
-# Clone Code Credit : YT - @Tech_VJ / TG - @VJ_Bots / GitHub - @VJBots
+# Clone Code Credit : YT - #blackcatoffical / TG - #blackcatoffical / GitHub - @VJBots
 
 import datetime, time, asyncio
 from pyrogram import Client, filters
@@ -54,9 +54,9 @@ async def pm_broadcast(bot, message):
     except Exception as e:
         print(f"error: {e}")
 
-# Don't Remove Credit Tg - @VJ_Botz
-# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
-# Ask Doubt on telegram @KingVJ01
+# Don't Remove Credit Tg - #blackcatoffical
+# Subscribe YouTube Channel For Amazing Bot https://youtube.com/#blackcatoffical
+# Ask Doubt on telegram edison
 
 async def broadcast_messages(bot_id, user_id, message):
     try:
