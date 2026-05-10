@@ -226,8 +226,53 @@ async def format_tmdb_detail(movie, media_type):
         'url': f"https://www.themoviedb.org/{media_type}/{movie.get('id')}"
     }
 
+def clean_query(query):
+    query = query.lower()
+    # Remove common extra terms
+    extra_terms = [
+        "malayalam", "tamil", "hindi", "telugu", "kannada", "english", "bengali", "punjabi", "marathi", "gujarati",
+        "web-dl", "webrip", "bluray", "brrip", "hdrip", "hdtv", "hevc", "x264", "x265", "1080p", "720p", "480p", "360p",
+        "dual", "audio", "org", "original", "hc", "sub", "subs", "esub", "dubbed"
+    ]
+    
+    # Extract year
+    year = re.search(r'(19|20)\d{2}', query)
+    year_str = year.group(0) if year else None
+    
+    # Remove year from title search if it's there
+    title = query
+    if year:
+        title = title.replace(year.group(0), "")
+        
+    for term in extra_terms:
+        title = title.replace(term, "")
+        
+    # Remove non-alphanumeric at ends and multiple spaces
+    title = re.sub(r'[^a-zA-Z0-9\s]', ' ', title)
+    title = " ".join(title.split())
+    
+    return title.strip(), year_str
+
 async def get_poster(query, bulk=False, id=False, file=None):
-    # Try TMDB first
+    if not id:
+        # Try original first
+        tmdb_res = await get_tmdb_poster(query, bulk=bulk, id=id)
+        if tmdb_res:
+            return tmdb_res
+            
+        # Try cleaned version
+        title, year = clean_query(query)
+        if title:
+            # Try title + year
+            if year:
+                tmdb_res = await get_tmdb_poster(f"{title} {year}", bulk=bulk, id=id)
+                if tmdb_res: return tmdb_res
+            
+            # Try title only
+            tmdb_res = await get_tmdb_poster(title, bulk=bulk, id=id)
+            if tmdb_res: return tmdb_res
+            
+    # Fallback to old logic or original search
     tmdb_res = await get_tmdb_poster(query, bulk=bulk, id=id)
     if tmdb_res:
         return tmdb_res

@@ -2549,26 +2549,31 @@ async def auto_filter(client, name, msg, reply_msg, ai_search, spoll=False):
         if re.findall("((^\/|^,|^!|^\.|^[\U0001F600-\U000E007F]).*)", message.text):
             return
         if len(message.text) < 100:
-            search = name
-            search = search.lower()
-            find = search.split(" ")
-            search = ""
-            removes = ["in","upload", "series", "full", "horror", "thriller", "mystery", "print", "file"]
-            for x in find:
-                if x in removes:
-                    continue
-                else:
-                    search = search + x + " "
-            search = re.sub(r"\b(pl(i|e)*?(s|z+|ease|se|ese|(e+)s(e)?)|((send|snd|giv(e)?|gib)(\sme)?)|movie(s)?|new|latest|bro|bruh|broh|helo|that|find|dubbed|link|venum|iruka|pannunga|pannungga|anuppunga|anupunga|anuppungga|anupungga|film|undo|kitti|kitty|tharu|kittumo|kittum|movie|any(one)|with\ssubtitle(s)?)", "", search, flags=re.IGNORECASE)
-            search = re.sub(r"\s+", " ", search).strip()
-            search = search.replace("-", " ")
-            search = search.replace(":", "")
-            search = search.replace(".", "")
-            files, offset, total_results = await get_search_results(message.chat.id ,search, offset=0, filter=True)
+            search = name.lower()
+            # Use improved cleaning from utils
+            from utils import clean_query
+            title, year = clean_query(search)
+            
+            # Construct a better search string for the database
+            db_search = title
+            if year:
+                db_search = f"{title} {year}"
+            
+            files, offset, total_results = await get_search_results(message.chat.id, db_search, offset=0, filter=True)
+            
+            # If no results with year, try title only
+            if not files and year:
+                files, offset, total_results = await get_search_results(message.chat.id, title, offset=0, filter=True)
+                if files:
+                    db_search = title
+            
+            search = db_search
             settings = await get_settings(message.chat.id)
+            
             if not files:
-                # Try TMDB normalization
-                tmdb_res = await get_poster(search)
+                # Try TMDB normalization if still nothing
+                from utils import get_poster
+                tmdb_res = await get_poster(name)
                 if tmdb_res and tmdb_res.get('title'):
                     normalized_search = tmdb_res.get('title')
                     if normalized_search.lower() != search.lower():

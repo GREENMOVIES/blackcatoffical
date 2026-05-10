@@ -85,7 +85,7 @@ async def get_search_results(chat_id, query, file_type=None, max_results=10, off
         raw_pattern = '.'
     else:
         words = query.split()
-        raw_pattern = r'^' + r''.join(f'(?=.*{re.escape(word)})' for word in words)
+        raw_pattern = r'^' + r''.join(f'(?=.*\b{re.escape(word)}\b)' for word in words)
     try:
         regex = re.compile(raw_pattern, flags=re.IGNORECASE)
     except:
@@ -119,7 +119,7 @@ async def get_bad_files(query, file_type=None, use_filter=False):
         raw_pattern = '.'
     else:
         words = query.split()
-        raw_pattern = r'^' + r''.join(f'(?=.*{re.escape(word)})' for word in words)
+        raw_pattern = r'^' + r''.join(f'(?=.*\b{re.escape(word)}\b)' for word in words)
     
     try:
         regex = re.compile(raw_pattern, flags=re.IGNORECASE)
