@@ -2551,20 +2551,20 @@ async def auto_filter(client, name, msg, reply_msg, ai_search, spoll=False):
                 return
             if len(message.text) < 100:
                 search = name.lower()
-                title, year = clean_query(search)
+                search_title, search_year = clean_query(search)
                 
                 # Construct a better search string for the database
-                db_search = title
-                if year:
-                    db_search = f"{title} {year}"
+                db_search = search_title
+                if search_year:
+                    db_search = f"{search_title} {search_year}"
                 
                 files, offset, total_results = await get_search_results(message.chat.id, db_search, offset=0, filter=True)
                 
                 # If no results with year, try title only
-                if not files and year:
-                    files, offset, total_results = await get_search_results(message.chat.id, title, offset=0, filter=True)
+                if not files and search_year:
+                    files, offset, total_results = await get_search_results(message.chat.id, search_title, offset=0, filter=True)
                     if files:
-                        db_search = title
+                        db_search = search_title
                 
                 search = db_search
                 settings = await get_settings(message.chat.id)
