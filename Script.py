@@ -175,9 +175,7 @@ Cᴏᴍᴍᴀɴᴅs Aɴᴅ Usᴀɢᴇ:
 
     STATUS_TXT = """<b>Total Files From All DBs: <code>{}</code>
 
-USERS DB :-
-★ Tᴏᴛᴀʟ Usᴇʀs: 786819
-★ Tᴏᴛᴀʟ Cʜᴀᴛs: unavailabe
+
 
 FILE FIRST DB :-
 ★ Tᴏᴛᴀʟ Fɪʟᴇs: <code>{}</code>
