@@ -97,7 +97,8 @@ async def is_subscribed(bot, query):
 
 async def get_tmdb_poster(query, bulk=False, id=False):
     try:
-        async with aiohttp.ClientSession() as session:
+        timeout = aiohttp.ClientTimeout(total=10)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
             if id:
                 # Assuming query is the TMDB ID or IMDb ID
                 media_type = "movie" # Default to movie
@@ -228,24 +229,24 @@ async def format_tmdb_detail(movie, media_type):
 
 def clean_query(query):
     query = query.lower()
-    # Remove common extra terms
+    # Remove common extra terms with word boundaries
     extra_terms = [
         "malayalam", "tamil", "hindi", "telugu", "kannada", "english", "bengali", "punjabi", "marathi", "gujarati",
         "web-dl", "webrip", "bluray", "brrip", "hdrip", "hdtv", "hevc", "x264", "x265", "1080p", "720p", "480p", "360p",
-        "dual", "audio", "org", "original", "hc", "sub", "subs", "esub", "dubbed"
+        "dual", "audio", "org", "original", "hc", "sub", "subs", "esub", "dubbed", "movie", "full", "series"
     ]
     
     # Extract year
-    year = re.search(r'(19|20)\d{2}', query)
-    year_str = year.group(0) if year else None
+    year_match = re.search(r'\b(19|20)\d{2}\b', query)
+    year_str = year_match.group(0) if year_match else None
     
     # Remove year from title search if it's there
     title = query
-    if year:
-        title = title.replace(year.group(0), "")
+    if year_str:
+        title = title.replace(year_str, "")
         
     for term in extra_terms:
-        title = title.replace(term, "")
+        title = re.sub(r'\b' + re.escape(term) + r'\b', '', title)
         
     # Remove non-alphanumeric at ends and multiple spaces
     title = re.sub(r'[^a-zA-Z0-9\s]', ' ', title)
@@ -290,7 +291,8 @@ async def get_poster(query, bulk=False, id=False, file=None):
                 year = list_to_str(year[:1]) 
         else:
             year = None
-        movieid = imdb.search_movie(title.lower(), results=10)
+        
+        movieid = await asyncio.to_thread(imdb.search_movie, title.lower(), results=10)
         if not movieid:
             return None
         if year:
@@ -307,7 +309,8 @@ async def get_poster(query, bulk=False, id=False, file=None):
         movieid = movieid[0].movieID
     else:
         movieid = query
-    movie = imdb.get_movie(movieid)
+    
+    movie = await asyncio.to_thread(imdb.get_movie, movieid)
     if not movie:
         return None
     if movie.get("original air date"):

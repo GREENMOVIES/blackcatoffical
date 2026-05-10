@@ -2,7 +2,7 @@
 # Subscribe YouTube Channel For Amazing Bot #blackcatoffical
 # Ask Doubt on telegram edison
 
-import re, base64, json
+import re, base64, json, asyncio
 from struct import pack
 from pyrogram.file_id import FileId
 from pymongo import MongoClient
@@ -92,21 +92,26 @@ async def get_search_results(chat_id, query, file_type=None, max_results=10, off
         regex = query
     filter = {'file_name': regex}
     files = []
+    
+    def get_docs(collection, filt, off, lim):
+        return list(collection.find(filt).sort('$natural', -1).skip(off).limit(lim))
+
     if MULTIPLE_DATABASE:
-        cursor1 = col.find(filter).sort('$natural', -1).skip(offset).limit(max_results)
-        cursor2 = sec_col.find(filter).sort('$natural', -1).skip(offset).limit(max_results)
+        cursor1 = await asyncio.to_thread(get_docs, col, filter, offset, max_results)
+        cursor2 = await asyncio.to_thread(get_docs, sec_col, filter, offset, max_results)
         
         for file in cursor1:
             files.append(file)
         for file in cursor2:
             files.append(file)
     else:
-        cursor = col.find(filter).sort('$natural', -1).skip(offset).limit(max_results)
-        
-        for file in cursor:
-            files.append(file)
+        files = await asyncio.to_thread(get_docs, col, filter, offset, max_results)
 
-    total_results = col.count_documents(filter) if not MULTIPLE_DATABASE else (col.count_documents(filter) + sec_col.count_documents(filter))
+    if MULTIPLE_DATABASE:
+        total_results = await asyncio.to_thread(col.count_documents, filter) + await asyncio.to_thread(sec_col.count_documents, filter)
+    else:
+        total_results = await asyncio.to_thread(col.count_documents, filter)
+
     next_offset = "" if (offset + max_results) >= total_results else (offset + max_results)
 
     return files, next_offset, total_results
@@ -130,15 +135,21 @@ async def get_bad_files(query, file_type=None, use_filter=False):
     if USE_CAPTION_FILTER:
         filter_criteria = {'$or': [filter_criteria, {'caption': regex}]}
 
-    def count_documents(collection):
-        return collection.count_documents(filter_criteria)
+    async def count_docs(collection):
+        return await asyncio.to_thread(collection.count_documents, filter_criteria)
 
-    total_results = (count_documents(col) + count_documents(sec_col) if MULTIPLE_DATABASE else count_documents(col))
+    if MULTIPLE_DATABASE:
+        total_results = await count_docs(col) + await count_docs(sec_col)
+    else:
+        total_results = await count_docs(col)
 
-    def find_documents(collection):
-        return list(collection.find(filter_criteria))
+    async def find_docs(collection):
+        return await asyncio.to_thread(lambda: list(collection.find(filter_criteria)))
 
-    files = (find_documents(col) + find_documents(sec_col) if MULTIPLE_DATABASE else find_documents(col))
+    if MULTIPLE_DATABASE:
+        files = await find_docs(col) + await find_docs(sec_col)
+    else:
+        files = await find_docs(col)
 
     return files, total_results
 
