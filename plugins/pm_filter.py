@@ -2954,9 +2954,10 @@ async def manual_filters(client, message, text=False):
                                     reply_msg = await message.reply_text(f"<b><i>Searching For {message.text} 🔍</i></b>")
                                     await auto_filter(client, message.text, message, reply_msg, ai_search)
                     elif btn == "":
-                        joelkb = await client.send_cached_media(
-                            group_id,
-                            fileid,
+                        joelkb = await send_file(
+                            bot=client,
+                            chat_id=group_id,
+                            file_id=fileid,
                             caption=reply_text or "",
                             protect_content=True if settings["file_secure"] else False,
                             reply_to_message_id=reply_id
@@ -3174,9 +3175,10 @@ async def global_filters(client, message, text=False):
                                         await joelkb.delete()
 
                     elif btn == "":
-                        joelkb = await client.send_cached_media(
-                            group_id,
-                            fileid,
+                        joelkb = await send_file(
+                            bot=client,
+                            chat_id=group_id,
+                            file_id=fileid,
                             caption=reply_text or "",
                             reply_to_message_id=reply_id
                         )

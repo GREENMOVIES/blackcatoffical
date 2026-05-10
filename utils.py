@@ -936,7 +936,7 @@ async def download_global_thumb():
     if not GLOBAL_THUMB or not GLOBAL_THUMB.startswith(("http://", "https://")):
         return GLOBAL_THUMB
     
-    thumb_path = "thumbnails/global_thumb.jpg"
+    thumb_path = "thumbnails/global_thumb.png"
     if os.path.exists(thumb_path):
         return thumb_path
     
@@ -955,7 +955,7 @@ async def download_global_thumb():
         logger.error(f"Error downloading global thumb: {e}")
     return None
 
-async def send_file(bot, chat_id, file_id, caption, protect_content=False, reply_markup=None):
+async def send_file(bot, chat_id, file_id, caption, protect_content=False, reply_markup=None, **kwargs):
     thumb = await download_global_thumb()
     try:
         # Try sending as document with custom thumb
@@ -965,7 +965,8 @@ async def send_file(bot, chat_id, file_id, caption, protect_content=False, reply
             thumb=thumb,
             caption=caption,
             protect_content=protect_content,
-            reply_markup=reply_markup
+            reply_markup=reply_markup,
+            **kwargs
         )
     except Exception as e:
         logger.error(f"Error sending file with custom thumb: {e}. Falling back to send_cached_media.")
@@ -974,6 +975,7 @@ async def send_file(bot, chat_id, file_id, caption, protect_content=False, reply
             file_id=file_id,
             caption=caption,
             protect_content=protect_content,
-            reply_markup=reply_markup
+            reply_markup=reply_markup,
+            **kwargs
         )
 
