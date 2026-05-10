@@ -758,10 +758,17 @@ async def send_all(bot, userid, files, ident, chat_id, user_name, query):
                 size = get_size(file["file_size"])
                 if CUSTOM_FILE_CAPTION:
                     try:
+                        file_info = get_file_info(title)
                         f_caption = CUSTOM_FILE_CAPTION.format(
                             file_name='' if title is None else title,
                             file_size='' if size is None else size,
-                            file_caption='' if f_caption is None else f_caption
+                            file_caption='' if f_caption is None else f_caption,
+                            quality=file_info['quality'],
+                            season=file_info['season'],
+                            episode=file_info['episode'],
+                            language=file_info['language'],
+                            year=file_info['year'],
+                            format=file_info['format']
                         )
                     except Exception as e:
                         print(e)
@@ -875,4 +882,52 @@ async def get_seconds(time_string):
         return value * 86400 * 365
     else:
         return 0
+
+def get_file_info(file_name):
+    file_name = file_name.lower()
+    
+    # Quality
+    quality = "N/A"
+    qualities = ["360p", "480p", "720p", "1080p", "1440p", "2160p", "4k", "blu-ray", "web-dl", "hdtv", "hdrip"]
+    for q in qualities:
+        if q in file_name:
+            quality = q.upper()
+            break
+            
+    # Season/Episode
+    season = "N/A"
+    episode = "N/A"
+    s_match = re.search(r's(\d{1,2})', file_name)
+    if s_match: season = f"S{s_match.group(1).zfill(2)}"
+    e_match = re.search(r'e(\d{1,3})', file_name)
+    if e_match: episode = f"E{e_match.group(1).zfill(2)}"
+    
+    # Language
+    language = "N/A"
+    languages = ["english", "hindi", "tamil", "telugu", "malayalam", "kannada", "bengali", "punjabi", "marathi", "gujarati", "dual", "multi"]
+    found_langs = []
+    for l in languages:
+        if l in file_name:
+            found_langs.append(l.title())
+    if found_langs:
+        language = ", ".join(found_langs)
+        
+    # Year
+    year = "N/A"
+    y_match = re.search(r'(19|20)\d{2}', file_name)
+    if y_match: year = y_match.group(0)
+    
+    # Format
+    format = "N/A"
+    if "." in file_name:
+        format = file_name.split(".")[-1].upper()
+        
+    return {
+        "quality": quality,
+        "season": season,
+        "episode": episode,
+        "language": language,
+        "year": year,
+        "format": format
+    }
 

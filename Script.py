@@ -262,8 +262,15 @@ Nᴀᴍᴇ - {}"""
 𝗠𝗲𝘀𝘀𝗮𝗴𝗲 <b>: {}</b>"""
 
     CAPTION = """<b>📂 ғɪʟᴇɴᴀᴍᴇ : {file_name}
-
+    
 <b>⚙️ sɪᴢᴇ : {file_size}</b>
+<b>🎬 ǫᴜᴀʟɪᴛʏ : {quality}</b>
+<b>🎞 sᴇᴀsᴏɴ : {season}</b>
+<b>📺 ᴇᴘɪsᴏᴅᴇ : {episode}</b>
+<b>🌐 ʟᴀɴɢᴜᴀɢᴇ : {language}</b>
+<b>📅 ʏᴇᴀʀ : {year}</b>
+<b>📀 ғᴏʀᴍᴀᴛ : {format}</b>
+
 BY YOUR @GREENMOVIEBOT""" 
 
     IMDB_TEMPLATE_TXT = """

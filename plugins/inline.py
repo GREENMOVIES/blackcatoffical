@@ -66,7 +66,18 @@ async def answer(bot, query):
         f_caption=file['caption']
         if CUSTOM_FILE_CAPTION:
             try:
-                f_caption=CUSTOM_FILE_CAPTION.format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='' if f_caption is None else f_caption)
+                file_info = get_file_info(title)
+                f_caption=CUSTOM_FILE_CAPTION.format(
+                    file_name= '' if title is None else title, 
+                    file_size='' if size is None else size, 
+                    file_caption='' if f_caption is None else f_caption,
+                    quality=file_info['quality'],
+                    season=file_info['season'],
+                    episode=file_info['episode'],
+                    language=file_info['language'],
+                    year=file_info['year'],
+                    format=file_info['format']
+                )
             except Exception as e:
                 logger.exception(e)
                 f_caption=f_caption

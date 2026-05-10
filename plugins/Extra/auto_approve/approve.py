@@ -130,7 +130,18 @@ async def auto_approve(client, message: ChatJoinRequest):
             f_caption=msg.get("caption", "")
             if BATCH_FILE_CAPTION:
                 try:
-                    f_caption=BATCH_FILE_CAPTION.format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='' if f_caption is None else f_caption)
+                    file_info = get_file_info(title)
+                    f_caption=BATCH_FILE_CAPTION.format(
+                        file_name= '' if title is None else title, 
+                        file_size='' if size is None else size, 
+                        file_caption='' if f_caption is None else f_caption,
+                        quality=file_info['quality'],
+                        season=file_info['season'],
+                        episode=file_info['episode'],
+                        language=file_info['language'],
+                        year=file_info['year'],
+                        format=file_info['format']
+                    )
                 except:
                     f_caption=f_caption
             if f_caption is None:
@@ -204,7 +215,18 @@ async def auto_approve(client, message: ChatJoinRequest):
                 f_caption = getattr(msg, 'caption', file_name)
                 if BATCH_FILE_CAPTION:
                     try:
-                        f_caption=BATCH_FILE_CAPTION.format(file_name=file_name, file_size='' if size is None else size, file_caption=f_caption)
+                        file_info = get_file_info(file_name)
+                        f_caption=BATCH_FILE_CAPTION.format(
+                            file_name=file_name, 
+                            file_size='' if size is None else size, 
+                            file_caption=f_caption,
+                            quality=file_info['quality'],
+                            season=file_info['season'],
+                            episode=file_info['episode'],
+                            language=file_info['language'],
+                            year=file_info['year'],
+                            format=file_info['format']
+                        )
                     except:
                         f_caption = getattr(msg, 'caption', '')
                 file_id = file.file_id
@@ -317,7 +339,18 @@ async def auto_approve(client, message: ChatJoinRequest):
             f_caption=files1["caption"]
             if CUSTOM_FILE_CAPTION:
                 try:
-                    f_caption=CUSTOM_FILE_CAPTION.format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='' if f_caption is None else f_caption)
+                    file_info = get_file_info(title)
+                    f_caption=CUSTOM_FILE_CAPTION.format(
+                        file_name= '' if title is None else title, 
+                        file_size='' if size is None else size, 
+                        file_caption='' if f_caption is None else f_caption,
+                        quality=file_info['quality'],
+                        season=file_info['season'],
+                        episode=file_info['episode'],
+                        language=file_info['language'],
+                        year=file_info['year'],
+                        format=file_info['format']
+                    )
                 except:
                     f_caption=f_caption
             if f_caption is None:
@@ -420,7 +453,18 @@ async def auto_approve(client, message: ChatJoinRequest):
             f_caption = f"<code>{title}</code>"
             if CUSTOM_FILE_CAPTION:
                 try:
-                    f_caption=CUSTOM_FILE_CAPTION.format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='')
+                    file_info = get_file_info(title)
+                    f_caption=CUSTOM_FILE_CAPTION.format(
+                        file_name= '' if title is None else title, 
+                        file_size='' if size is None else size, 
+                        file_caption='',
+                        quality=file_info['quality'],
+                        season=file_info['season'],
+                        episode=file_info['episode'],
+                        language=file_info['language'],
+                        year=file_info['year'],
+                        format=file_info['format']
+                    )
                 except:
                     return
             await msg.edit_caption(caption=f_caption)
@@ -440,7 +484,18 @@ async def auto_approve(client, message: ChatJoinRequest):
     f_caption=files["caption"]
     if CUSTOM_FILE_CAPTION:
         try:
-            f_caption=CUSTOM_FILE_CAPTION.format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='' if f_caption is None else f_caption)
+            file_info = get_file_info(title)
+            f_caption=CUSTOM_FILE_CAPTION.format(
+                file_name= '' if title is None else title, 
+                file_size='' if size is None else size, 
+                file_caption='' if f_caption is None else f_caption,
+                quality=file_info['quality'],
+                season=file_info['season'],
+                episode=file_info['episode'],
+                language=file_info['language'],
+                year=file_info['year'],
+                format=file_info['format']
+            )
         except:
             f_caption=f_caption
     if f_caption is None:
