@@ -160,7 +160,8 @@ async def store_files(bot, message):
             continue
 
         await msg.edit(f"<b>Indexing Channel: {chat.title}</b>")
-        await store_files_to_db(last_msg_id, chat.id, msg, bot)
+        # For automatic store, we start from message ID 1 for each channel
+        await store_files_to_db(last_msg_id, chat.id, msg, bot, start_id=1)
     
     await msg.edit("<b>Automatic File Storing Completed! ✅</b>")
 
@@ -236,7 +237,7 @@ async def index_files_to_db(lst_msg_id, chat, msg, bot):
                 pass
 
 
-async def store_files_to_db(lst_msg_id, chat, msg, bot):
+async def store_files_to_db(lst_msg_id, chat, msg, bot, start_id=1):
     total_files = 0
     duplicate = 0
     errors = 0
@@ -245,11 +246,11 @@ async def store_files_to_db(lst_msg_id, chat, msg, bot):
     unsupported = 0
     async with lock:
         try:
-            current = temp.CURRENT
+            current = start_id
             temp.CANCEL = False
             import time
             last_update_time = time.time()
-            async for message in bot.iter_messages(chat, lst_msg_id, temp.CURRENT):
+            async for message in bot.iter_messages(chat, lst_msg_id, start_id):
                 if temp.CANCEL:
                     await msg.edit(f"Successfully Cancelled!!\n\nSaved <code>{total_files}</code> files to dataBase!\nDuplicate Files Skipped: <code>{duplicate}</code>\nDeleted Messages Skipped: <code>{deleted}</code>\nNon-Media messages skipped: <code>{no_media + unsupported}</code>(Unsupported Media - `{unsupported}` )\nErrors Occurred: <code>{errors}</code>")
                     break
@@ -305,5 +306,3 @@ async def store_files_to_db(lst_msg_id, chat, msg, bot):
                 await asyncio.sleep(e.value)
             except:
                 pass
-        finally:
-            temp.CURRENT = current

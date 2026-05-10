@@ -61,18 +61,17 @@ def clean_file_name(file_name):
     unwanted_chars = ['[', ']', '(', ')', '{', '}']
     
     for char in unwanted_chars:
-        file_name = file_name.replace(char, '')
+        file_name = file_name.replace(char, ' ')
         
-    return ' '.join(filter(lambda x: not x.startswith('@') and not x.startswith('http') and not x.startswith('www.') and not x.startswith('t.me'), file_name.split()))
+    cleaned_name = ' '.join(filter(lambda x: not x.startswith('@') and not x.startswith('http') and not x.startswith('www.') and not x.startswith('t.me'), file_name.split()))
+    return cleaned_name if cleaned_name else str(file_name)
 
 def is_file_already_saved(file_id, file_name):
     """Check if the file is already saved in either collection."""
-    found1 = {'file_name': file_name}
     found = {'file_id': file_id}
 
     for collection in [col, sec_col]:
-        if collection.find_one(found1) or collection.find_one(found):
-            print(f"{file_name} is already saved.")
+        if collection.find_one(found):
             return True
             
     return False
