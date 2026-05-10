@@ -10,7 +10,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQ
 from pyrogram import Client, filters, enums
 from pyrogram.errors import FloodWait, UserIsBlocked, MessageNotModified, PeerIdInvalid
 from pyrogram.errors.exceptions.bad_request_400 import MediaEmpty, PhotoInvalidDimensions, WebpageMediaEmpty
-from utils import get_size, is_subscribed, pub_is_subscribed, get_poster, search_gagala, temp, get_settings, save_group_settings, get_shortlink, get_tutorial, send_all, get_cap, send_file, get_file_info
+from utils import get_size, is_subscribed, pub_is_subscribed, get_poster, clean_query, search_gagala, temp, get_settings, save_group_settings, get_shortlink, get_tutorial, send_all, get_cap, send_file, get_file_info
 from database.users_chats_db import db
 from database.ia_filterdb import col, sec_col, db as vjdb, sec_db, get_file_details, get_search_results, get_bad_files
 from database.filters_mdb import del_all, find_filter, get_filters
@@ -2551,8 +2551,6 @@ async def auto_filter(client, name, msg, reply_msg, ai_search, spoll=False):
                 return
             if len(message.text) < 100:
                 search = name.lower()
-                # Use improved cleaning from utils
-                from utils import clean_query
                 title, year = clean_query(search)
                 
                 # Construct a better search string for the database
@@ -2573,7 +2571,6 @@ async def auto_filter(client, name, msg, reply_msg, ai_search, spoll=False):
                 
                 if not files:
                     # Try TMDB normalization if still nothing
-                    from utils import get_poster
                     tmdb_res = await get_poster(name)
                     if tmdb_res and tmdb_res.get('title'):
                         normalized_search = tmdb_res.get('title')
