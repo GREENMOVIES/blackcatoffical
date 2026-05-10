@@ -14,6 +14,8 @@ SESSION = environ.get('SESSION', 'TechVJBot')
 API_ID = int(environ.get('API_ID', '0') or 0)
 API_HASH = environ.get('API_HASH', '')
 BOT_TOKEN = environ.get('BOT_TOKEN', '')
+TMDB_API_KEY = environ.get('TMDB_API_KEY', 'd0cc5d7213353d143cb454d2b4cbaebc')
+
 
 
 # This Pictures Is For Start Message Picture, You Can Add Multiple By Giving One Space Between Each.

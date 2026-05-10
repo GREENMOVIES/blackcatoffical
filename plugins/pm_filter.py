@@ -2549,10 +2549,20 @@ async def auto_filter(client, name, msg, reply_msg, ai_search, spoll=False):
             files, offset, total_results = await get_search_results(message.chat.id ,search, offset=0, filter=True)
             settings = await get_settings(message.chat.id)
             if not files:
-                if settings["spell_check"]:
-                    return await advantage_spell_chok(client, name, msg, reply_msg, ai_search)
-                else:
-                    return await reply_msg.edit_text(f"**⚠️ No File Found For Your Query - {name}**\n**Make Sure Spelling Is Correct.**")
+                # Try TMDB normalization
+                tmdb_res = await get_poster(search)
+                if tmdb_res and tmdb_res.get('title'):
+                    normalized_search = tmdb_res.get('title')
+                    if normalized_search.lower() != search.lower():
+                        files, offset, total_results = await get_search_results(message.chat.id, normalized_search, offset=0, filter=True)
+                        if files:
+                            search = normalized_search
+                
+                if not files:
+                    if settings["spell_check"]:
+                        return await advantage_spell_chok(client, name, msg, reply_msg, ai_search)
+                    else:
+                        return await reply_msg.edit_text(f"**⚠️ No File Found For Your Query - {name}**\n**Make Sure Spelling Is Correct.**")
         else:
             return
     else:

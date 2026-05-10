@@ -16,6 +16,8 @@ from database.users_chats_db import db
 from database.join_reqs import JoinReqs
 from bs4 import BeautifulSoup
 from shortzy import Shortzy
+from urllib.parse import quote_plus
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -93,7 +95,143 @@ async def is_subscribed(bot, query):
                 return True
         return False
 
+async def get_tmdb_poster(query, bulk=False, id=False):
+    try:
+        async with aiohttp.ClientSession() as session:
+            if id:
+                # Assuming query is the TMDB ID or IMDb ID
+                media_type = "movie" # Default to movie
+                tmdb_id = query
+                if str(query).startswith('tt'):
+                    # Fetch by IMDb ID
+                    find_url = f"https://api.themoviedb.org/3/find/{query}?api_key={TMDB_API_KEY}&external_source=imdb_id"
+                    async with session.get(find_url) as find_resp:
+                        find_res = await find_resp.json()
+                        if find_res.get('movie_results'):
+                            tmdb_id = find_res['movie_results'][0]['id']
+                            media_type = 'movie'
+                        elif find_res.get('tv_results'):
+                            tmdb_id = find_res['tv_results'][0]['id']
+                            media_type = 'tv'
+                        else:
+                            return None
+                else:
+                    # Check if it's a TV show or Movie (this is tricky if we only have numeric ID)
+                    # We can try movie first, then TV
+                    pass # We'll handle this by trying movie details first
+                
+                detail_url = f"https://api.themoviedb.org/3/{media_type}/{tmdb_id}?api_key={TMDB_API_KEY}&append_to_response=credits,release_dates,content_ratings"
+                async with session.get(detail_url) as detail_response:
+                    if detail_response.status != 200 and media_type == 'movie':
+                        # Try TV
+                        media_type = 'tv'
+                        detail_url = f"https://api.themoviedb.org/3/{media_type}/{tmdb_id}?api_key={TMDB_API_KEY}&append_to_response=credits,release_dates,content_ratings"
+                        async with session.get(detail_url) as detail_response:
+                            if detail_response.status != 200: return None
+                            movie = await detail_response.json()
+                    else:
+                        movie = await detail_response.json()
+                return await format_tmdb_detail(movie, media_type)
+
+            url = f"https://api.themoviedb.org/3/search/multi?api_key={TMDB_API_KEY}&query={quote_plus(query)}"
+            async with session.get(url) as response:
+                res = await response.json()
+                if not res.get('results'):
+                    return None
+                
+                if bulk:
+                    results = []
+                    for r in res['results']:
+                        if r.get('media_type') in ['movie', 'tv']:
+                            # Mock Cinemagoer object structure for compatibility
+                            class Movie:
+                                def __init__(self, data):
+                                    self.data = data
+                                    self.movieID = data.get('id')
+                                    self.title = data.get('title') or data.get('name')
+                                    self.year = (data.get('release_date') or data.get('first_air_date') or "0000")[:4]
+                                def get(self, key): return getattr(self, key, None)
+                            results.append(Movie(r))
+                    return results
+                
+                result = res['results'][0]
+                media_type = result.get('media_type')
+                if media_type not in ['movie', 'tv']:
+                    for r in res['results']:
+                        if r.get('media_type') in ['movie', 'tv']:
+                            result = r
+                            media_type = r.get('media_type')
+                            break
+                    else:
+                        return None
+                
+                tmdb_id = result.get('id')
+                detail_url = f"https://api.themoviedb.org/3/{media_type}/{tmdb_id}?api_key={TMDB_API_KEY}&append_to_response=credits,release_dates,content_ratings"
+                async with session.get(detail_url) as detail_response:
+                    movie = await detail_response.json()
+                    return await format_tmdb_detail(movie, media_type)
+    except Exception as e:
+        logger.error(f"TMDB Error: {e}")
+        return None
+
+async def format_tmdb_detail(movie, media_type):
+    poster = f"https://image.tmdb.org/t/p/original{movie.get('poster_path')}" if movie.get('poster_path') else None
+    credits = movie.get('credits', {})
+    cast = [c.get('name') for c in credits.get('cast', [])[:10]]
+    crew = credits.get('crew', [])
+    director = [c.get('name') for c in crew if c.get('job') == 'Director']
+    writer = [c.get('name') for c in crew if c.get('job') in ['Writer', 'Screenplay', 'Author']]
+    producer = [c.get('name') for c in crew if c.get('job') == 'Producer']
+    genres = [g.get('name') for g in movie.get('genres', [])]
+    
+    rating = "N/A"
+    if media_type == 'movie':
+        for r in movie.get('release_dates', {}).get('results', []):
+            if r.get('iso_3166_1') == 'IN':
+                rating = r.get('release_dates', [{}])[0].get('certification', 'N/A')
+                break
+    else:
+        for r in movie.get('content_ratings', {}).get('results', []):
+            if r.get('iso_3166_1') == 'IN':
+                rating = r.get('rating', 'N/A')
+                break
+
+    return {
+        'title': movie.get('title') or movie.get('name'),
+        'votes': movie.get('vote_count'),
+        "aka": movie.get("original_title") or movie.get("original_name"),
+        "seasons": movie.get("number_of_seasons", "N/A"),
+        "box_office": movie.get('revenue', 'N/A'),
+        'localized_title': movie.get('title') or movie.get('name'),
+        'kind': media_type,
+        "imdb_id": movie.get('imdb_id'),
+        "cast": ", ".join(cast) if cast else "N/A",
+        "runtime": f"{movie.get('runtime') or movie.get('episode_run_time', [0])[0]} min",
+        "countries": ", ".join([c.get('name') for c in movie.get('production_countries', [])]),
+        "certificates": rating,
+        "languages": ", ".join([l.get('english_name') for l in movie.get('spoken_languages', [])]),
+        "director": ", ".join(director) if director else "N/A",
+        "writer": ", ".join(writer) if writer else "N/A",
+        "producer": ", ".join(producer) if producer else "N/A",
+        "composer": "N/A",
+        "cinematographer": "N/A",
+        "music_team": "N/A",
+        "distributors": "N/A",
+        'release_date': movie.get('release_date') or movie.get('first_air_date'),
+        'year': (movie.get('release_date') or movie.get('first_air_date') or "0000")[:4],
+        'genres': ", ".join(genres) if genres else "N/A",
+        'poster': poster,
+        'plot': movie.get('overview'),
+        'rating': str(movie.get("vote_average")),
+        'url': f"https://www.themoviedb.org/{media_type}/{movie.get('id')}"
+    }
+
 async def get_poster(query, bulk=False, id=False, file=None):
+    # Try TMDB first
+    tmdb_res = await get_tmdb_poster(query, bulk=bulk, id=id)
+    if tmdb_res:
+        return tmdb_res
+
     if not id:
         query = (query.strip()).lower()
         title = query
@@ -172,6 +310,7 @@ async def get_poster(query, bulk=False, id=False, file=None):
         'rating': str(movie.get("rating")),
         'url':f'https://www.imdb.com/title/tt{movieid}'
     }
+
 
 async def broadcast_messages(user_id, message):
     try:
