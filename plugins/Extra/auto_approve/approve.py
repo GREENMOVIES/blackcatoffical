@@ -7,7 +7,7 @@ from database.ia_filterdb import get_file_details, unpack_new_file_id, get_bad_f
 from database.users_chats_db import db, delete_all_referal_users, get_referal_users_count, get_referal_all_users, referal_add_user
 from database.join_reqs import JoinReqs
 from info import *
-from utils import get_settings, pub_is_subscribed, get_size, is_subscribed, save_group_settings, temp, verify_user, check_token, check_verification, get_token, get_shortlink, get_tutorial, get_seconds
+from utils import get_settings, pub_is_subscribed, get_size, is_subscribed, save_group_settings, temp, verify_user, check_token, check_verification, get_token, get_shortlink, get_tutorial, get_seconds, send_file, get_file_info
 from database.connections_mdb import active_connection
 from urllib.parse import quote_plus
 from TechVJ.util.file_properties import get_name, get_hash, get_media_file_size
@@ -164,7 +164,8 @@ async def auto_approve(client, message: ChatJoinRequest):
                 else:
                     reply_markup = None
                     
-                msg = await client.send_cached_media(
+                msg = await send_file(
+                    bot=client,
                     chat_id=message.from_user.id,
                     file_id=msg.get("file_id"),
                     caption=f_caption,
@@ -175,7 +176,8 @@ async def auto_approve(client, message: ChatJoinRequest):
                 
             except FloodWait as e:
                 await asyncio.sleep(e.value)
-                msg = await client.send_cached_media(
+                msg = await send_file(
+                    bot=client,
                     chat_id=message.from_user.id,
                     file_id=msg.get("file_id"),
                     caption=f_caption,
@@ -376,7 +378,8 @@ async def auto_approve(client, message: ChatJoinRequest):
                 reply_markup=InlineKeyboardMarkup(button)
             else:
                 reply_markup = None
-            msg = await client.send_cached_media(
+            msg = await send_file(
+                bot=client,
                 chat_id=message.from_user.id,
                 file_id=file_id,
                 caption=f_caption,
@@ -440,11 +443,13 @@ async def auto_approve(client, message: ChatJoinRequest):
                 reply_markup=InlineKeyboardMarkup(button)
             else:
                 reply_markup = None
-            msg = await client.send_cached_media(
+            msg = await send_file(
+                bot=client,
                 chat_id=message.from_user.id,
                 file_id=file_id,
                 protect_content=True if pre == 'filep' else False,
-                reply_markup=reply_markup
+                reply_markup=reply_markup,
+                caption=f_caption
             )
             filetype = msg.media
             file = getattr(msg, filetype.value)
@@ -521,7 +526,8 @@ async def auto_approve(client, message: ChatJoinRequest):
         reply_markup=InlineKeyboardMarkup(button)
     else:
         reply_markup = None
-    msg = await client.send_cached_media(
+    msg = await send_file(
+        bot=client,
         chat_id=message.from_user.id,
         file_id=file_id,
         caption=f_caption,

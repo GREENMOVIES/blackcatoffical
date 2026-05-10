@@ -2,7 +2,7 @@
 # Subscribe YouTube Channel For Amazing Bot #blackcatoffical
 # Ask Doubt on telegram edison
 
-import logging, asyncio, os, re, random, pytz, aiohttp, requests, string, json, http.client
+import logging, asyncio, os, re, random, pytz, aiohttp, requests, string, json, http.client, aiofiles
 from info import *
 from imdb import Cinemagoer 
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
@@ -775,7 +775,8 @@ async def send_all(bot, userid, files, ident, chat_id, user_name, query):
                         f_caption = f_caption
                 if f_caption is None:
                     f_caption = f"{title}"
-                await bot.send_cached_media(
+                await send_file(
+                    bot=bot,
                     chat_id=userid,
                     file_id=file["file_id"],
                     caption=f_caption,
@@ -930,4 +931,49 @@ def get_file_info(file_name):
         "year": year,
         "format": format
     }
+
+async def download_global_thumb():
+    if not GLOBAL_THUMB or not GLOBAL_THUMB.startswith(("http://", "https://")):
+        return GLOBAL_THUMB
+    
+    thumb_path = "thumbnails/global_thumb.jpg"
+    if os.path.exists(thumb_path):
+        return thumb_path
+    
+    if not os.path.exists("thumbnails"):
+        os.makedirs("thumbnails")
+        
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(GLOBAL_THUMB) as resp:
+                if resp.status == 200:
+                    f = await aiofiles.open(thumb_path, mode='wb')
+                    await f.write(await resp.read())
+                    await f.close()
+                    return thumb_path
+    except Exception as e:
+        logger.error(f"Error downloading global thumb: {e}")
+    return None
+
+async def send_file(bot, chat_id, file_id, caption, protect_content=False, reply_markup=None):
+    thumb = await download_global_thumb()
+    try:
+        # Try sending as document with custom thumb
+        return await bot.send_document(
+            chat_id=chat_id,
+            document=file_id,
+            thumb=thumb,
+            caption=caption,
+            protect_content=protect_content,
+            reply_markup=reply_markup
+        )
+    except Exception as e:
+        logger.error(f"Error sending file with custom thumb: {e}. Falling back to send_cached_media.")
+        return await bot.send_cached_media(
+            chat_id=chat_id,
+            file_id=file_id,
+            caption=caption,
+            protect_content=protect_content,
+            reply_markup=reply_markup
+        )
 
