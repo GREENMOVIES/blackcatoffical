@@ -93,7 +93,11 @@ async def get_search_results(chat_id, query, file_type=None, max_results=10, off
     files = []
     
     def get_docs(collection, filt, off, lim):
-        return list(collection.find(filt).sort('$natural', -1).skip(off).limit(lim))
+        try:
+            return list(collection.find(filt).sort('$natural', -1).skip(off).limit(lim))
+        except Exception as e:
+            print(f"Error fetching from {collection.name}: {e}")
+            return []
 
     if MULTIPLE_DATABASE:
         cursor1 = await asyncio.to_thread(get_docs, col, filter, offset, max_results)
@@ -106,10 +110,15 @@ async def get_search_results(chat_id, query, file_type=None, max_results=10, off
     else:
         files = await asyncio.to_thread(get_docs, col, filter, offset, max_results)
 
-    if MULTIPLE_DATABASE:
-        total_results = await asyncio.to_thread(col.count_documents, filter) + await asyncio.to_thread(sec_col.count_documents, filter)
-    else:
-        total_results = await asyncio.to_thread(col.count_documents, filter)
+    total_results = 0
+    try:
+        if MULTIPLE_DATABASE:
+            total_results = await asyncio.to_thread(col.count_documents, filter) + await asyncio.to_thread(sec_col.count_documents, filter)
+        else:
+            total_results = await asyncio.to_thread(col.count_documents, filter)
+    except Exception as e:
+        print(f"Error counting documents: {e}")
+        total_results = len(files)
 
     next_offset = "" if (offset + max_results) >= total_results else (offset + max_results)
 
