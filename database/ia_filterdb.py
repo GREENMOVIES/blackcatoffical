@@ -7,15 +7,16 @@ from struct import pack
 from pyrogram.file_id import FileId
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
+import motor.motor_asyncio
 from info import FILE_DB_URI, SEC_FILE_DB_URI, DATABASE_NAME, COLLECTION_NAME, MULTIPLE_DATABASE, USE_CAPTION_FILTER, MAX_B_TN
 
 # First Database For File Saving 
-client = MongoClient(FILE_DB_URI)
+client = motor.motor_asyncio.AsyncIOMotorClient(FILE_DB_URI)
 db = client[DATABASE_NAME]
 col = db[COLLECTION_NAME]
 
 # Second Database For File Saving
-sec_client = MongoClient(SEC_FILE_DB_URI)
+sec_client = motor.motor_asyncio.AsyncIOMotorClient(SEC_FILE_DB_URI)
 sec_db = sec_client[DATABASE_NAME]
 sec_col = sec_db[COLLECTION_NAME]
 
@@ -37,7 +38,7 @@ async def save_file(media):
         return False, 0
 
     try:
-        col.insert_one(file)
+        await col.insert_one(file)
         print(f"{file_name} is successfully saved.")
         return True, 1
     except DuplicateKeyError:
@@ -46,7 +47,7 @@ async def save_file(media):
     except:
         if MULTIPLE_DATABASE:
             try:
-                sec_col.insert_one(file)
+                await sec_col.insert_one(file)
                 print(f"{file_name} is successfully saved.")
                 return True, 1
             except DuplicateKeyError:
@@ -71,7 +72,7 @@ def is_file_already_saved(file_id, file_name):
     found = {'file_id': file_id}
 
     for collection in [col, sec_col]:
-        if collection.find_one(found):
+        if await collection.find_one(found):
             return True
             
     return False
@@ -89,39 +90,30 @@ async def get_search_results(chat_id, query, file_type=None, max_results=10, off
         regex = re.compile(raw_pattern, flags=re.IGNORECASE)
     except:
         regex = query
-    filter = {'file_name': regex}
+    filter_criteria = {'file_name': regex}
     files = []
     
-    def get_docs(collection, filt, off, lim):
-        try:
-            return list(collection.find(filt).sort('$natural', -1).skip(off).limit(lim))
-        except Exception as e:
-            print(f"Error fetching from {collection.name}: {e}")
-            return []
-
     if MULTIPLE_DATABASE:
-        cursor1 = await asyncio.to_thread(get_docs, col, filter, offset, max_results)
-        cursor2 = await asyncio.to_thread(get_docs, sec_col, filter, offset, max_results)
+        # Run both queries in parallel for speed
+        results = await asyncio.gather(
+            col.find(filter_criteria).sort('$natural', -1).skip(offset).limit(max_results).to_list(length=max_results),
+            sec_col.find(filter_criteria).sort('$natural', -1).skip(offset).limit(max_results).to_list(length=max_results)
+        )
+        for cursor in results:
+            for file in cursor:
+                files.append(file)
         
-        for file in cursor1:
-            files.append(file)
-        for file in cursor2:
-            files.append(file)
+        # Count in parallel too
+        counts = await asyncio.gather(
+            col.count_documents(filter_criteria),
+            sec_col.count_documents(filter_criteria)
+        )
+        total_results = sum(counts)
     else:
-        files = await asyncio.to_thread(get_docs, col, filter, offset, max_results)
-
-    total_results = 0
-    try:
-        if MULTIPLE_DATABASE:
-            total_results = await asyncio.to_thread(col.count_documents, filter) + await asyncio.to_thread(sec_col.count_documents, filter)
-        else:
-            total_results = await asyncio.to_thread(col.count_documents, filter)
-    except Exception as e:
-        print(f"Error counting documents: {e}")
-        total_results = len(files)
+        files = await col.find(filter_criteria).sort('$natural', -1).skip(offset).limit(max_results).to_list(length=max_results)
+        total_results = await col.count_documents(filter_criteria)
 
     next_offset = "" if (offset + max_results) >= total_results else (offset + max_results)
-
     return files, next_offset, total_results
 
 async def get_bad_files(query, file_type=None, use_filter=False):
@@ -144,7 +136,7 @@ async def get_bad_files(query, file_type=None, use_filter=False):
         filter_criteria = {'$or': [filter_criteria, {'caption': regex}]}
 
     async def count_docs(collection):
-        return await asyncio.to_thread(collection.count_documents, filter_criteria)
+        return await collection.count_documents(filter_criteria)
 
     if MULTIPLE_DATABASE:
         total_results = await count_docs(col) + await count_docs(sec_col)
@@ -152,7 +144,7 @@ async def get_bad_files(query, file_type=None, use_filter=False):
         total_results = await count_docs(col)
 
     async def find_docs(collection):
-        return await asyncio.to_thread(lambda: list(collection.find(filter_criteria)))
+        return await collection.find(filter_criteria).to_list(length=None)
 
     if MULTIPLE_DATABASE:
         files = await find_docs(col) + await find_docs(sec_col)
@@ -162,7 +154,7 @@ async def get_bad_files(query, file_type=None, use_filter=False):
     return files, total_results
 
 async def get_file_details(query):
-    return col.find_one({'file_id': query}) or sec_col.find_one({'file_id': query})
+    return await col.find_one({'file_id': query}) or await sec_col.find_one({'file_id': query})
 
 def encode_file_id(s: bytes) -> str:
     r = b""

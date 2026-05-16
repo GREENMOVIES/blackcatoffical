@@ -95,9 +95,13 @@ async def is_subscribed(bot, query):
                 return True
         return False
 
+POSTER_CACHE = {}
+
 async def get_tmdb_poster(query, bulk=False, id=False):
+    if not bulk and not id and query in POSTER_CACHE:
+        return POSTER_CACHE[query]
     try:
-        timeout = aiohttp.ClientTimeout(total=10)
+        timeout = aiohttp.ClientTimeout(total=5)
         async with aiohttp.ClientSession(timeout=timeout) as session:
             if id:
                 # Assuming query is the TMDB ID or IMDb ID
@@ -170,7 +174,10 @@ async def get_tmdb_poster(query, bulk=False, id=False):
                 detail_url = f"https://api.themoviedb.org/3/{media_type}/{tmdb_id}?api_key={TMDB_API_KEY}&append_to_response=credits,release_dates,content_ratings"
                 async with session.get(detail_url) as detail_response:
                     movie = await detail_response.json()
-                    return await format_tmdb_detail(movie, media_type)
+                    res = await format_tmdb_detail(movie, media_type)
+                    if not bulk and not id:
+                        POSTER_CACHE[query] = res
+                    return res
     except Exception as e:
         logger.error(f"TMDB Error: {e}")
         return None
