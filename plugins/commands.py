@@ -150,7 +150,13 @@ async def start(client, message):
     if data.startswith("search_"):
         query = data.replace("search_", "").replace("_", " ")
         reply_msg = await message.reply_text(f"<b><i>Searching For {query} 🔍</i></b>")
-        files, offset, total_results = await get_search_results(message.chat.id, query, offset=0, filter=True)
+        try:
+            files, offset, total_results = await asyncio.wait_for(get_search_results(message.chat.id, query, offset=0, filter=True), timeout=15)
+        except asyncio.TimeoutError:
+            return await reply_msg.edit_text("<b>❌ Search timed out. Your database might be slow or empty.</b>")
+        except Exception as e:
+            return await reply_msg.edit_text(f"<b>❌ Database Error:</b>\n<code>{str(e)}</code>")
+
         if not files:
             await reply_msg.edit_text(f"**⚠️ No File Found For Your Query - {query}**")
             return

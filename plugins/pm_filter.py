@@ -2558,16 +2558,18 @@ async def auto_filter(client, name, msg, reply_msg, ai_search, spoll=False):
                 if search_year:
                     db_search = f"{search_title} {search_year}"
                 
-                files, offset, total_results = await get_search_results(message.chat.id, db_search, offset=0, filter=True)
+                print(f"Searching for: {db_search}")
+                try:
+                    files, offset, total_results = await asyncio.wait_for(get_search_results(message.chat.id, db_search, offset=0, filter=True), timeout=15)
+                except asyncio.TimeoutError:
+                    return await reply_msg.edit_text("<b>❌ Search timed out. Your database might be slow.</b>")
                 
-                # If no results with year, try title only
-                if not files and search_year:
-                    files, offset, total_results = await get_search_results(message.chat.id, search_title, offset=0, filter=True)
-                    if files:
-                        db_search = search_title
-                
-                search = db_search
-                settings = await get_settings(message.chat.id)
+                print(f"Results found: {len(files)}")
+                try:
+                    settings = await asyncio.wait_for(get_settings(message.chat.id), timeout=10)
+                except asyncio.TimeoutError:
+                    print("Settings fetch timed out.")
+                    return await reply_msg.edit_text("<b>❌ Settings fetch timed out. Database might be overloaded.</b>")
                 
                 if not files:
                     # Try TMDB normalization if still nothing
@@ -2657,7 +2659,13 @@ async def auto_filter(client, name, msg, reply_msg, ai_search, spoll=False):
             btn.append(
                 [InlineKeyboardButton(text="𝐍𝐎 𝐌𝐎𝐑𝐄 𝐏𝐀𝐆𝐄𝐒 𝐀𝐕𝐀𝐈𝐋𝐀𝐁𝐋𝐄",callback_data="pages")]
             )
-        imdb = await get_poster(search, file=(files[0])['file_name']) if settings["imdb"] else None
+        print("Fetching IMDb poster...")
+        try:
+            imdb = await asyncio.wait_for(get_poster(search, file=(files[0])['file_name']), timeout=15) if settings["imdb"] else None
+        except asyncio.TimeoutError:
+            print("IMDb fetch timed out.")
+            imdb = None
+        print("Finalizing response...")
         cur_time = datetime.now(pytz.timezone('Asia/Kolkata')).time()
         time_difference = timedelta(hours=cur_time.hour, minutes=cur_time.minute, seconds=(cur_time.second+(cur_time.microsecond/1000000))) - timedelta(hours=curr_time.hour, minutes=curr_time.minute, seconds=(curr_time.second+(curr_time.microsecond/1000000)))
         remaining_seconds = "{:.2f}".format(time_difference.total_seconds())
