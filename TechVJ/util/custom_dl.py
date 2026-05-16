@@ -214,7 +214,11 @@ class ByteStreamer:
                             location=location, offset=offset, limit=chunk_size
                         ),
                     )
-        except (TimeoutError, AttributeError):
+        except (TimeoutError, AttributeError) as e:
+            logging.error(f"Error in yield_file: {e}")
+            pass
+        except Exception as e:
+            logging.error(f"Unexpected error in yield_file: {e}", exc_info=True)
             pass
         finally:
             logging.debug("Finished yielding file with {current_part} parts.")

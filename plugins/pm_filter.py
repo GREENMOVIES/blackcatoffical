@@ -1792,7 +1792,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
         _, file_id = query.data.split(":")
         try:
             log_msg = await client.send_cached_media(chat_id=LOG_CHANNEL, file_id=file_id)
-            fileName = {quote_plus(get_name(log_msg))}
+            fileName = quote_plus(get_name(log_msg))
             stream = f"{URL}watch/{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
             download = f"{URL}{str(log_msg.id)}/{quote_plus(get_name(log_msg))}?hash={get_hash(log_msg)}"
             button = [[
@@ -2963,13 +2963,19 @@ async def manual_filters(client, message, text=False):
                                     reply_msg = await message.reply_text(f"<b><i>Searching For {message.text} 🔍</i></b>")
                                     await auto_filter(client, message.text, message, reply_msg, ai_search)
                     elif btn == "":
+                        if STREAM_MODE:
+                            button = [[InlineKeyboardButton('sᴛʀᴇᴀᴍ ᴀɴᴅ ᴅᴏᴡɴʟᴏᴀᴅ', callback_data=f'generate_stream_link:{fileid}')]]
+                            reply_markup = InlineKeyboardMarkup(button)
+                        else:
+                            reply_markup = None
                         joelkb = await send_file(
                             bot=client,
                             chat_id=group_id,
                             file_id=fileid,
                             caption=reply_text or "",
                             protect_content=True if settings["file_secure"] else False,
-                            reply_to_message_id=reply_id
+                            reply_to_message_id=reply_id,
+                            reply_markup=reply_markup
                         )
                         try:
                             if settings['auto_ffilter']:
@@ -3184,12 +3190,18 @@ async def global_filters(client, message, text=False):
                                         await joelkb.delete()
 
                     elif btn == "":
+                        if STREAM_MODE:
+                            button = [[InlineKeyboardButton('sᴛʀᴇᴀᴍ ᴀɴᴅ ᴅᴏᴡɴʟᴏᴀᴅ', callback_data=f'generate_stream_link:{fileid}')]]
+                            reply_markup = InlineKeyboardMarkup(button)
+                        else:
+                            reply_markup = None
                         joelkb = await send_file(
                             bot=client,
                             chat_id=group_id,
                             file_id=fileid,
                             caption=reply_text or "",
-                            reply_to_message_id=reply_id
+                            reply_to_message_id=reply_id,
+                            reply_markup=reply_markup
                         )
                         manual = await manual_filters(client, message)
                         if manual == False:

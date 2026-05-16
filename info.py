@@ -167,7 +167,7 @@ SLEEP_THRESHOLD = int(environ.get('SLEEP_THRESHOLD', '60'))
 PING_INTERVAL = int(environ.get("PING_INTERVAL", "600"))  # 10 minutes
 ON_HEROKU = 'DYNO' in environ
 ON_KOYEB = 'KOYEB_PROJECT_ID' in environ or 'KOYEB_APP_NAME' in environ
-URL = environ.get("URL", "")
+URL = environ.get("URL", "https://forthcoming-carmine-greenfilmfx-8e011ace.koyeb.app/")
 
 
 # Rename Info : If True Then Bot Rename File Else Not
