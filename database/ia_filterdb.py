@@ -34,7 +34,7 @@ async def save_file(media):
         'caption': media.caption.html if media.caption else None
     }
 
-    if is_file_already_saved(file_id, file_name):
+    if await is_file_already_saved(file_id, file_name):
         return False, 0
 
     try:
@@ -67,7 +67,7 @@ def clean_file_name(file_name):
     cleaned_name = ' '.join(filter(lambda x: not x.startswith('@') and not x.startswith('http') and not x.startswith('www.') and not x.startswith('t.me'), file_name.split()))
     return cleaned_name if cleaned_name else str(file_name)
 
-def is_file_already_saved(file_id, file_name):
+async def is_file_already_saved(file_id, file_name):
     """Check if the file is already saved in either collection."""
     found = {'file_id': file_id}
 

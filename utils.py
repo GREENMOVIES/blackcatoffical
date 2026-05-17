@@ -1034,3 +1034,31 @@ async def send_file(bot, chat_id, file_id, caption, protect_content=False, reply
             **kwargs
         )
 
+
+async def correct_spelling_with_gemini(query):
+    if not GEMINI_API_KEY:
+        return None
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
+    headers = {"Content-Type": "application/json"}
+    prompt = f"The user searched for a movie or TV series with the misspelled query: \"{query}\". Identify the correct official title. Return ONLY the exact title, without colons, punctuation, symbols, or year. For example, return \"Avengers Infinity War\"."
+    payload = {
+        "contents": [{
+            "parts": [{"text": prompt}]
+        }]
+    }
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=headers, json=payload, timeout=10) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    candidates = data.get("candidates", [])
+                    if candidates:
+                        content = candidates[0].get("content", {})
+                        parts = content.get("parts", [])
+                        if parts:
+                            corrected = parts[0].get("text", "").strip()
+                            return corrected
+    except Exception as e:
+        logger.error(f"Gemini API error: {e}")
+    return None
+

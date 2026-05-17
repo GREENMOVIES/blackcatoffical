@@ -12,7 +12,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQ
 from pyrogram import Client, filters, enums
 from pyrogram.errors import FloodWait, UserIsBlocked, MessageNotModified, PeerIdInvalid
 from pyrogram.errors.exceptions.bad_request_400 import MediaEmpty, PhotoInvalidDimensions, WebpageMediaEmpty
-from utils import get_size, is_subscribed, pub_is_subscribed, get_poster, search_gagala, temp, get_settings, save_group_settings, get_shortlink, get_tutorial, send_all, get_cap
+from utils import get_size, is_subscribed, pub_is_subscribed, get_poster, search_gagala, temp, get_settings, save_group_settings, get_shortlink, get_tutorial, send_all, get_cap, correct_spelling_with_gemini
 from database.users_chats_db import db
 from database.ia_filterdb import get_file_details, get_search_results, get_bad_files
 
@@ -988,11 +988,27 @@ async def advantage_spell_chok(client, name, msg, reply_msg, vj_search):
     mv_id = msg.id
     mv_rqst = name
     reqstr1 = msg.from_user.id if msg.from_user else 0
-    reqstr = await client.get_users(reqstr1)
+    if reqstr1:
+        reqstr = await client.get_users(reqstr1)
+        reqstr_id = reqstr.id
+        reqstr_mention = reqstr.mention
+    else:
+        reqstr_id = 0
+        reqstr_mention = "Anonymous"
     query = re.sub(
         r"\b(pl(i|e)*?(s|z+|ease|se|ese|(e+)s(e)?)|((send|snd|giv(e)?|gib)(\sme)?)|movie(s)?|new|latest|br((o|u)h?)*|^h(e|a)?(l)*(o)*|mal(ayalam)?|t(h)?amil|file|that|find|und(o)*|kit(t(i|y)?)?o(w)?|thar(u)?(o)*w?|kittum(o)*|aya(k)*(um(o)*)?|full\smovie|any(one)|with\ssubtitle(s)?)",
         "", msg.text, flags=re.IGNORECASE)  # plis contribute some common words
     query = query.strip() + " movie"
+    if vj_search == True:
+        await reply_msg.edit_text("<b><i>I Am Trying To Find Your Movie With Your Wrong Spelling Using AI... 🤖</i></b>")
+        corrected_name = await correct_spelling_with_gemini(mv_rqst)
+        if corrected_name:
+            files, offset, total_results = await get_search_results(msg.chat.id, corrected_name, offset=0, filter=True)
+            if files:
+                await reply_msg.edit_text(f"<b><i>AI Corrected Spelling: {corrected_name} 🎯</i></b>")
+                await asyncio.sleep(1)
+                return await auto_filter(client, corrected_name, msg, reply_msg, False, spoll=(corrected_name, files, offset, total_results))
+
     try:
         movies = await get_poster(mv_rqst, bulk=True)
     except Exception as e:
