@@ -1040,7 +1040,12 @@ async def correct_spelling_with_gemini(query):
         return None
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
     headers = {"Content-Type": "application/json"}
-    prompt = f"The user searched for a movie or TV series with the misspelled query: \"{query}\". Identify the correct official title. Return ONLY the exact title, without colons, punctuation, symbols, or year. For example, return \"Avengers Infinity War\"."
+    prompt = (
+        f"The user searched for a movie or TV series with the query: \"{query}\". "
+        "Correct any misspellings in the main title. Also, carefully identify and extract any specific filters for year (e.g., 2023), quality (e.g., 1080p, 720p, 480p, 2160p, 4K), language (e.g., Hindi, Tamil, Telugu, Malayalam, English, Kannada, Dual Audio), season (format standardized as S01, S02, etc.), and episode (format standardized as E01, E02, etc.) if present in the user's query.\n"
+        "Return ONLY the corrected official title followed by any extracted filters separated by spaces, without colons, symbols, or punctuation. "
+        "For example, if query is 'avengrs inifinty war 1080p hndi 2018 s1 ep5', return exactly: 'Avengers Infinity War 2018 1080p Hindi S01 E05'."
+    )
     payload = {
         "contents": [{
             "parts": [{"text": prompt}]

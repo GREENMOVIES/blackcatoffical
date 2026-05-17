@@ -77,15 +77,29 @@ async def is_file_already_saved(file_id, file_name):
             
     return False
 
+def build_regex_pattern(query):
+    query = query.strip()
+    if not query:
+        return '.'
+    words = query.split()
+    patterns = []
+    for word in words:
+        s_match = re.match(r'^s0*(\d+)$', word, re.I)
+        e_match = re.match(r'^(?:e|ep)0*(\d+)$', word, re.I)
+        if s_match:
+            num = s_match.group(1)
+            patterns.append(f'(?=.*\\b(?:s0*{num}\\b|s0*{num}(?=e)|season[\\s\\._-]*0*{num}\\b))')
+        elif e_match:
+            num = e_match.group(1)
+            patterns.append(f'(?=.*(?:\\b(?:e0*{num}|ep0*{num}|episode[\\s\\._-]*0*{num})\\b|(?<=\\d)e0*{num}\\b))')
+        else:
+            patterns.append(f'(?=.*\\b{re.escape(word)}\\b)')
+    return r'^' + r''.join(patterns)
+
 async def get_search_results(chat_id, query, file_type=None, max_results=10, offset=0, filter=False):
     """For given query return (results, next_offset)"""
     
-    query = query.strip()
-    if not query:
-        raw_pattern = '.'
-    else:
-        words = query.split()
-        raw_pattern = r'^' + r''.join(f'(?=.*\\b{re.escape(word)}\\b)' for word in words)
+    raw_pattern = build_regex_pattern(query)
     try:
         regex = re.compile(raw_pattern, flags=re.IGNORECASE)
     except:
@@ -118,14 +132,8 @@ async def get_search_results(chat_id, query, file_type=None, max_results=10, off
 
 async def get_bad_files(query, file_type=None, use_filter=False):
     """For given query return (results, next_offset)"""
-    query = query.strip()
     
-    if not query:
-        raw_pattern = '.'
-    else:
-        words = query.split()
-        raw_pattern = r'^' + r''.join(f'(?=.*\\b{re.escape(word)}\\b)' for word in words)
-    
+    raw_pattern = build_regex_pattern(query)
     try:
         regex = re.compile(raw_pattern, flags=re.IGNORECASE)
     except re.error:
