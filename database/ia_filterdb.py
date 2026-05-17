@@ -44,17 +44,22 @@ async def save_file(media):
     except DuplicateKeyError:
         print(f"{file_name} is already saved.")
         return False, 0
-    except:
+    except Exception as e:
+        print(f"Error saving to primary DB: {e}. Trying secondary DB if enabled.")
         if MULTIPLE_DATABASE:
             try:
                 await sec_col.insert_one(file)
-                print(f"{file_name} is successfully saved.")
+                print(f"{file_name} is successfully saved in secondary DB.")
                 return True, 1
             except DuplicateKeyError:
-                print(f"{file_name} is already saved.")
+                print(f"{file_name} is already saved in secondary DB.")
                 return False, 0
+            except Exception as e2:
+                print(f"Error saving to secondary DB: {e2}")
+                return False, 2
         else:
-            print("Your Current File Database Is Full, Turn On Multiple Database Feature And Add Second File Mongodb To Save File.")
+            print("Primary DB insert failed and Multiple Database is disabled.")
+            return False, 2
 
 def clean_file_name(file_name):
     """Clean and format the file name."""
