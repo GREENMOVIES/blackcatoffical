@@ -55,14 +55,19 @@ class TechVJXBot(Client):
                     print(message.text)
         """
         current = offset
-        while True:
-            new_diff = min(200, limit - current)
+        while current <= limit:
+            new_diff = min(200, (limit - current) + 1)
             if new_diff <= 0:
                 return
-            messages = await self.get_messages(chat_id, list(range(current, current+new_diff+1)))
-            for message in messages:
-                yield message
-                current += 1
+            batch_ids = list(range(current, current + new_diff))
+            try:
+                messages = await self.get_messages(chat_id, batch_ids)
+                for message in messages:
+                    if message:
+                        yield message
+            except Exception as e:
+                logger.error(f"Error fetching messages for chat {chat_id} batch {current}-{current+new_diff}: {e}")
+            current += new_diff
       
 TechVJBot = TechVJXBot()
 
