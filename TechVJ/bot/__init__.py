@@ -68,6 +68,7 @@ class TechVJXBot(Client):
             except Exception as e:
                 logger.error(f"Error fetching messages for chat {chat_id} batch {current}-{current+new_diff}: {e}")
             current += new_diff
+            await asyncio.sleep(0.5)
       
 TechVJBot = TechVJXBot()
 
