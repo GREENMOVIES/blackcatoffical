@@ -1035,10 +1035,10 @@ async def send_file(bot, chat_id, file_id, caption, protect_content=False, reply
         )
 
 
-async def correct_spelling_with_gemini(query):
+async def _correct_spelling_with_gemini(query):
     if not GEMINI_API_KEY:
         return None
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
     headers = {"Content-Type": "application/json"}
     prompt = (
         f"The user searched for a movie or TV series with the query: \"{query}\". "
@@ -1063,7 +1063,97 @@ async def correct_spelling_with_gemini(query):
                         if parts:
                             corrected = parts[0].get("text", "").strip()
                             return corrected
+                else:
+                    err_text = await response.text()
+                    logger.error(f"Gemini API returned status {response.status}: {err_text}")
     except Exception as e:
         logger.error(f"Gemini API error: {e}")
     return None
+
+async def correct_spelling_with_openai(query):
+    if not OPENAI_API_KEY:
+        return None
+    url = "https://api.openai.com/v1/chat/completions"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {OPENAI_API_KEY}"
+    }
+    prompt = (
+        f"The user searched for a movie or TV series with the query: \"{query}\". "
+        "Correct any misspellings in the main title. Also, carefully identify and extract any specific filters for year (e.g., 2023), quality (e.g., 1080p, 720p, 480p, 2160p, 4K), language (e.g., Hindi, Tamil, Telugu, Malayalam, English, Kannada, Dual Audio), season (format standardized as S01, S02, etc.), and episode (format standardized as E01, E02, etc.) if present in the user's query.\n"
+        "Return ONLY the corrected official title followed by any extracted filters separated by spaces, without colons, symbols, or punctuation. "
+        "For example, if query is 'avengrs inifinty war 1080p hndi 2018 s1 ep5', return exactly: 'Avengers Infinity War 2018 1080p Hindi S01 E05'."
+    )
+    payload = {
+        "model": "gpt-4o-mini",
+        "messages": [
+            {"role": "system", "content": "You are a precise movie search and filter standardization assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.2
+    }
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=headers, json=payload, timeout=10) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    choices = data.get("choices", [])
+                    if choices:
+                        corrected = choices[0].get("message", {}).get("content", "").strip()
+                        return corrected
+                else:
+                    err_text = await response.text()
+                    logger.error(f"OpenAI API returned status {response.status}: {err_text}")
+    except Exception as e:
+        logger.error(f"OpenAI API error: {e}")
+    return None
+
+async def correct_spelling_with_aiml(query):
+    if not AIML_API_KEY:
+        return None
+    url = "https://api.aimlapi.com/chat/completions"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {AIML_API_KEY}"
+    }
+    prompt = (
+        f"The user searched for a movie or TV series with the query: \"{query}\". "
+        "Correct any misspellings in the main title. Also, carefully identify and extract any specific filters for year (e.g., 2023), quality (e.g., 1080p, 720p, 480p, 2160p, 4K), language (e.g., Hindi, Tamil, Telugu, Malayalam, English, Kannada, Dual Audio), season (format standardized as S01, S02, etc.), and episode (format standardized as E01, E02, etc.) if present in the user's query.\n"
+        "Return ONLY the corrected official title followed by any extracted filters separated by spaces, without colons, symbols, or punctuation. "
+        "For example, if query is 'avengrs inifinty war 1080p hndi 2018 s1 ep5', return exactly: 'Avengers Infinity War 2018 1080p Hindi S01 E05'."
+    )
+    payload = {
+        "model": "mistralai/Mistral-7B-Instruct-v0.2",
+        "messages": [
+            {"role": "system", "content": "You are a precise movie search and filter standardization assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.2
+    }
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=headers, json=payload, timeout=10) as response:
+                if response.status in [200, 201]:
+                    data = await response.json()
+                    choices = data.get("choices", [])
+                    if choices:
+                        corrected = choices[0].get("message", {}).get("content", "").strip()
+                        return corrected
+                else:
+                    err_text = await response.text()
+                    logger.error(f"AIML API returned status {response.status}: {err_text}")
+    except Exception as e:
+        logger.error(f"AIML API error: {e}")
+    return None
+
+async def correct_spelling_with_gemini(query):
+    res = await _correct_spelling_with_gemini(query)
+    if res:
+        return res
+    logger.info("Gemini AI failed or unavailable, falling back to OpenAI (Tier 2)...")
+    res2 = await correct_spelling_with_openai(query)
+    if res2:
+        return res2
+    logger.info("OpenAI failed or unavailable, falling back to AIML API (Tier 3)...")
+    return await correct_spelling_with_aiml(query)
 

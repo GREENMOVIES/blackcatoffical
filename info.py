@@ -15,7 +15,9 @@ API_ID = int(environ.get('API_ID', '0') or 0)
 API_HASH = environ.get('API_HASH', '')
 BOT_TOKEN = environ.get('BOT_TOKEN', '')
 TMDB_API_KEY = environ.get('TMDB_API_KEY', 'd0cc5d7213353d143cb454d2b4cbaebc')
-GEMINI_API_KEY = environ.get('GEMINI_API_KEY', 'AIzaSyA6jKN6uZR9RGx2H9boHQ05ue8F133KYCo')
+GEMINI_API_KEY = environ.get('GEMINI_API_KEY', '')
+OPENAI_API_KEY = environ.get('OPENAI_API_KEY', '')
+AIML_API_KEY = environ.get('AIML_API_KEY', '')
 
 
 
