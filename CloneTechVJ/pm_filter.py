@@ -881,11 +881,16 @@ async def auto_filter(client, name, msg, reply_msg, ai_search, spoll=False):
         else:
             return
     else:
-        message = msg.message.reply_to_message  # msg will be callback query
+        if isinstance(msg, CallbackQuery):
+            message = msg.message.reply_to_message  # msg will be callback query
+            await msg.message.delete()
+        else:
+            message = msg
         search, files, offset, total_results = spoll
-        await msg.message.delete()
+        settings = await get_settings(message.chat.id)
     key = f"{message.chat.id}-{message.id}"
     FRESH[key] = search
+    BUTTONS[key] = search
     temp.GETALL[key] = files
     temp.SHORT[message.from_user.id] = message.chat.id
     btn = [

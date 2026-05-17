@@ -98,10 +98,14 @@ async def start(client, message):
         filesarr = []
         for file in files:
             vj_file_id = file['file_id']
-            k = await temp.BOT.send_cached_media(chat_id=PUBLIC_FILE_CHANNEL, file_id=vj_file_id)
-            vj = await client.get_messages(PUBLIC_FILE_CHANNEL, k.id)
-            mg = getattr(vj, vj.media.value)
-            file_id = mg.file_id
+            file_id = vj_file_id
+            try:
+                k = await temp.BOT.send_cached_media(chat_id=PUBLIC_FILE_CHANNEL, file_id=vj_file_id)
+                vj = await client.get_messages(PUBLIC_FILE_CHANNEL, k.id)
+                mg = getattr(vj, vj.media.value)
+                file_id = mg.file_id
+            except Exception as e:
+                logger.error(f"Failed to forward via PUBLIC_FILE_CHANNEL: {e}")
             files_ = await get_file_details(vj_file_id)
             files1 = files_
             title = ' '.join(filter(lambda x: not x.startswith('[') and not x.startswith('@'), files1['file_name'].split()))
@@ -166,10 +170,13 @@ async def start(client, message):
         reply_markup=InlineKeyboardMarkup(button)
     else:
         reply_markup=None
-    k = await temp.BOT.send_cached_media(chat_id=PUBLIC_FILE_CHANNEL, file_id=file_id)
-    vj = await client.get_messages(PUBLIC_FILE_CHANNEL, k.id)
-    m = getattr(vj, vj.media.value)
-    file_id = m.file_id
+    try:
+        k = await temp.BOT.send_cached_media(chat_id=PUBLIC_FILE_CHANNEL, file_id=file_id)
+        vj = await client.get_messages(PUBLIC_FILE_CHANNEL, k.id)
+        m = getattr(vj, vj.media.value)
+        file_id = m.file_id
+    except Exception as e:
+        logger.error(f"Failed to forward via PUBLIC_FILE_CHANNEL: {e}")
     msg = await send_file(
         bot=client,
         chat_id=message.from_user.id,
