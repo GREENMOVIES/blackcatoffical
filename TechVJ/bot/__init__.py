@@ -3,6 +3,7 @@
 # Ask Doubt on telegram edison
 
 from pyrogram import Client, types
+import asyncio
 from info import *
 from utils import temp
 from typing import Union, Optional, AsyncGenerator
