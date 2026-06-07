@@ -30,6 +30,7 @@ BUTTONS0 = {}
 BUTTONS1 = {}
 BUTTONS2 = {}
 SPELL_CHECK = {}
+NOTIFIED_REQUESTS = set()  # Tracks already-notified (user_id, movie_name) pairs
 
 @Client.on_message(filters.group & filters.text & filters.incoming)
 async def give_filter(client, message):
@@ -257,7 +258,17 @@ async def advantage_spoll_choker(bot, query):
                 reqstr1 = query.from_user.id if query.from_user else 0
                 reqstr = await bot.get_users(reqstr1)
                 if NO_RESULTS_MSG:
-                    await bot.send_message(chat_id=LOG_CHANNEL, text=(script.NORSLTS.format(reqstr.id, reqstr.mention, movie)))
+                    notify_btn = InlineKeyboardMarkup([
+                        [InlineKeyboardButton(
+                            "📨 Notify User",
+                            callback_data=f"notify_user#{reqstr.id}#{movie.replace(' ', '_')}"
+                        )]
+                    ])
+                    await bot.send_message(
+                        chat_id=LOG_CHANNEL,
+                        text=script.NORSLTS.format(reqstr.id, reqstr.mention, movie),
+                        reply_markup=notify_btn
+                    )
                 k = await query.message.edit(script.MVE_NT_FND)
                 await asyncio.sleep(10)
                 await k.delete()
@@ -2817,7 +2828,17 @@ async def advantage_spell_chok(client, name, msg, reply_msg, vj_search):
             InlineKeyboardButton("Gᴏᴏɢʟᴇ", url=f"https://www.google.com/search?q={reqst_gle}")
         ]]
         if NO_RESULTS_MSG:
-            await client.send_message(chat_id=LOG_CHANNEL, text=(script.NORSLTS.format(reqstr_id, reqstr_mention, mv_rqst)))
+            notify_btn = InlineKeyboardMarkup([
+                [InlineKeyboardButton(
+                    "📨 Notify User",
+                    callback_data=f"notify_user#{reqstr_id}#{mv_rqst.replace(' ', '_')}"
+                )]
+            ])
+            await client.send_message(
+                chat_id=LOG_CHANNEL,
+                text=script.NORSLTS.format(reqstr_id, reqstr_mention, mv_rqst),
+                reply_markup=notify_btn
+            )
         k = await reply_msg.edit_text(text=script.I_CUDNT.format(mv_rqst), reply_markup=InlineKeyboardMarkup(button))
         await asyncio.sleep(30)
         await k.delete()
@@ -2829,7 +2850,17 @@ async def advantage_spell_chok(client, name, msg, reply_msg, vj_search):
             InlineKeyboardButton("Gᴏᴏɢʟᴇ", url=f"https://www.google.com/search?q={reqst_gle}")
         ]]
         if NO_RESULTS_MSG:
-            await client.send_message(chat_id=LOG_CHANNEL, text=(script.NORSLTS.format(reqstr_id, reqstr_mention, mv_rqst)))
+            notify_btn = InlineKeyboardMarkup([
+                [InlineKeyboardButton(
+                    "📨 Notify User",
+                    callback_data=f"notify_user#{reqstr_id}#{mv_rqst.replace(' ', '_')}"
+                )]
+            ])
+            await client.send_message(
+                chat_id=LOG_CHANNEL,
+                text=script.NORSLTS.format(reqstr_id, reqstr_mention, mv_rqst),
+                reply_markup=notify_btn
+            )
         k = await reply_msg.edit_text(text=script.I_CUDNT.format(mv_rqst), reply_markup=InlineKeyboardMarkup(button))
         await asyncio.sleep(30)
         await k.delete()
@@ -2855,7 +2886,17 @@ async def advantage_spell_chok(client, name, msg, reply_msg, vj_search):
             InlineKeyboardButton("Gᴏᴏɢʟᴇ", url=f"https://www.google.com/search?q={reqst_gle}")
         ]]
         if NO_RESULTS_MSG:
-            await client.send_message(chat_id=LOG_CHANNEL, text=(script.NORSLTS.format(reqstr_id, reqstr_mention, mv_rqst)))
+            notify_btn = InlineKeyboardMarkup([
+                [InlineKeyboardButton(
+                    "📨 Notify User",
+                    callback_data=f"notify_user#{reqstr_id}#{mv_rqst.replace(' ', '_')}"
+                )]
+            ])
+            await client.send_message(
+                chat_id=LOG_CHANNEL,
+                text=script.NORSLTS.format(reqstr_id, reqstr_mention, mv_rqst),
+                reply_markup=notify_btn
+            )
         k = await reply_msg.edit_text(text=script.I_CUDNT.format(mv_rqst), reply_markup=InlineKeyboardMarkup(button))
         await asyncio.sleep(30)
         await k.delete()
@@ -2887,6 +2928,72 @@ async def advantage_spell_chok(client, name, msg, reply_msg, vj_search):
             if settings['auto_delete']:
                 await asyncio.sleep(600)
                 await spell_check_del.delete()
+
+@Client.on_callback_query(filters.regex(r"^notify_user#"))
+async def notify_user_cb(client, query):
+    """
+    Handles admin clicking 'Notify User' on a #NoResults log message.
+    Sends the requesting user a private message with a 'Check Movie' deep-link button.
+    Updates the admin button to 'User Notified' on success, or alerts on failure.
+    """
+    # Only allow bot admins to use this button
+    if query.from_user.id not in ADMINS:
+        return await query.answer("⚠️ Only admins can use this button.", show_alert=True)
+
+    try:
+        _, user_id_str, movie_slug = query.data.split("#", 2)
+        user_id = int(user_id_str)
+        movie_name = movie_slug.replace("_", " ")
+        movie_url_slug = movie_slug  # already has underscores
+    except (ValueError, IndexError):
+        return await query.answer("⚠️ Invalid button data.", show_alert=True)
+
+    # Idempotency: prevent sending the same notification twice
+    notify_key = (user_id, movie_slug)
+    if notify_key in NOTIFIED_REQUESTS:
+        return await query.answer("✅ User has already been notified.", show_alert=True)
+
+    # Build the deep-link URL for the user's Check Movie button
+    check_movie_url = f"https://telegram.me/greenmoviebot?start={movie_url_slug}"
+    user_btn = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🎬 Check Movie", url=check_movie_url)]
+    ])
+
+    notification_text = (
+        f"Dear User,\n\n"
+        f"The movie you requested has been added to our database. Check it out!"
+    )
+
+    try:
+        await client.send_message(
+            chat_id=user_id,
+            text=notification_text,
+            reply_markup=user_btn
+        )
+    except (UserIsBlocked, PeerIdInvalid) as e:
+        logger.error(f"Failed to notify user {user_id}: {e}")
+        return await query.answer("Failed to notify user.", show_alert=True)
+    except Exception as e:
+        logger.error(f"Unexpected error notifying user {user_id}: {e}")
+        return await query.answer("Failed to notify user.", show_alert=True)
+
+    # Mark as notified and update the admin button
+    NOTIFIED_REQUESTS.add(notify_key)
+    notified_btn = InlineKeyboardMarkup([
+        [InlineKeyboardButton("✅ User Notified", callback_data="notify_done")]
+    ])
+    try:
+        await query.message.edit_reply_markup(reply_markup=notified_btn)
+    except MessageNotModified:
+        pass
+    await query.answer("✅ User has been notified successfully!", show_alert=True)
+
+
+@Client.on_callback_query(filters.regex(r"^notify_done$"))
+async def notify_done_cb(client, query):
+    """Handles clicks on the already-notified button — just shows an info alert."""
+    await query.answer("✅ This user has already been notified.", show_alert=True)
+
 
 async def manual_filters(client, message, text=False):
     settings = await get_settings(message.chat.id)
