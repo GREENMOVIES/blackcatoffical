@@ -1109,7 +1109,7 @@ async def notify_user_cb(client, query):
         return await query.answer("✅ User has already been notified.", show_alert=True)
 
     # Build the deep-link URL for the user's Check Movie button
-    check_movie_url = f"https://telegram.me/greenmoviebot?start={movie_url_slug}"
+    check_movie_url = "https://telegram.me/greenmoviebot?start=search_movie_name"
     user_btn = InlineKeyboardMarkup([
         [InlineKeyboardButton("🎬 Check Movie", url=check_movie_url)]
     ])
