@@ -1079,6 +1079,75 @@ async def filter_qualities_cb_handler(client: Client, query: CallbackQuery):
         except MessageNotModified:
             pass
                 
+@Client.on_callback_query(filters.regex(r"^notify_user#"))
+async def notify_user_cb(client, query):
+    """
+    Handles admin clicking 'Notify User' on a #NoResults log message.
+    Sends the requesting user a private message with a 'Check Movie' deep-link button.
+    Updates the admin button to 'User Notified' on success, or alerts on failure.
+    """
+    logger.info("Button click received for notify_user")
+    
+    # Only allow bot admins to use this button
+    if query.from_user.id not in ADMINS:
+        return await query.answer("⚠️ Only admins can use this button.", show_alert=True)
+
+    try:
+        _, user_id_str, movie_slug = query.data.split("#", 2)
+        user_id = int(user_id_str)
+        movie_name = movie_slug.replace("_", " ")
+        movie_url_slug = movie_slug  # already has underscores
+        logger.info(f"Parsed user_id: {user_id}")
+        logger.info(f"Parsed movie_name: {movie_name}")
+    except (ValueError, IndexError) as e:
+        logger.error(f"Failed to parse callback data: {e}")
+        return await query.answer("⚠️ Invalid button data.", show_alert=True)
+
+    # Idempotency: prevent sending the same notification twice
+    notify_key = (user_id, movie_slug)
+    if notify_key in NOTIFIED_REQUESTS:
+        return await query.answer("✅ User has already been notified.", show_alert=True)
+
+    # Build the deep-link URL for the user's Check Movie button
+    check_movie_url = f"https://telegram.me/greenmoviebot?start={movie_url_slug}"
+    user_btn = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🎬 Check Movie", url=check_movie_url)]
+    ])
+
+    notification_text = (
+        f"Dear User,\n\n"
+        f"The movie you requested has been added to our database. Check it out!"
+    )
+
+    try:
+        await client.send_message(
+            chat_id=user_id,
+            text=notification_text,
+            reply_markup=user_btn
+        )
+        logger.info(f"Message sent successfully to user {user_id} for movie {movie_name}")
+    except Exception as e:
+        logger.error(f"Any exception raised: Failed to notify user {user_id}: {e}", exc_info=True)
+        return await query.answer("Failed to notify user.", show_alert=True)
+
+    # Mark as notified and update the admin button
+    NOTIFIED_REQUESTS.add(notify_key)
+    notified_btn = InlineKeyboardMarkup([
+        [InlineKeyboardButton("✅ User Notified", callback_data="notify_done")]
+    ])
+    try:
+        await query.message.edit_reply_markup(reply_markup=notified_btn)
+    except MessageNotModified:
+        pass
+    await query.answer("User notified successfully.", show_alert=True)
+
+
+@Client.on_callback_query(filters.regex(r"^notify_done$"))
+async def notify_done_cb(client, query):
+    """Handles clicks on the already-notified button — just shows an info alert."""
+    await query.answer("✅ This user has already been notified.", show_alert=True)
+
+
 @Client.on_callback_query()
 async def cb_handler(client: Client, query: CallbackQuery):
     if query.data == "close_data":
@@ -2928,72 +2997,6 @@ async def advantage_spell_chok(client, name, msg, reply_msg, vj_search):
             if settings['auto_delete']:
                 await asyncio.sleep(600)
                 await spell_check_del.delete()
-
-@Client.on_callback_query(filters.regex(r"^notify_user#"))
-async def notify_user_cb(client, query):
-    """
-    Handles admin clicking 'Notify User' on a #NoResults log message.
-    Sends the requesting user a private message with a 'Check Movie' deep-link button.
-    Updates the admin button to 'User Notified' on success, or alerts on failure.
-    """
-    # Only allow bot admins to use this button
-    if query.from_user.id not in ADMINS:
-        return await query.answer("⚠️ Only admins can use this button.", show_alert=True)
-
-    try:
-        _, user_id_str, movie_slug = query.data.split("#", 2)
-        user_id = int(user_id_str)
-        movie_name = movie_slug.replace("_", " ")
-        movie_url_slug = movie_slug  # already has underscores
-    except (ValueError, IndexError):
-        return await query.answer("⚠️ Invalid button data.", show_alert=True)
-
-    # Idempotency: prevent sending the same notification twice
-    notify_key = (user_id, movie_slug)
-    if notify_key in NOTIFIED_REQUESTS:
-        return await query.answer("✅ User has already been notified.", show_alert=True)
-
-    # Build the deep-link URL for the user's Check Movie button
-    check_movie_url = f"https://telegram.me/greenmoviebot?start={movie_url_slug}"
-    user_btn = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🎬 Check Movie", url=check_movie_url)]
-    ])
-
-    notification_text = (
-        f"Dear User,\n\n"
-        f"The movie you requested has been added to our database. Check it out!"
-    )
-
-    try:
-        await client.send_message(
-            chat_id=user_id,
-            text=notification_text,
-            reply_markup=user_btn
-        )
-    except (UserIsBlocked, PeerIdInvalid) as e:
-        logger.error(f"Failed to notify user {user_id}: {e}")
-        return await query.answer("Failed to notify user.", show_alert=True)
-    except Exception as e:
-        logger.error(f"Unexpected error notifying user {user_id}: {e}")
-        return await query.answer("Failed to notify user.", show_alert=True)
-
-    # Mark as notified and update the admin button
-    NOTIFIED_REQUESTS.add(notify_key)
-    notified_btn = InlineKeyboardMarkup([
-        [InlineKeyboardButton("✅ User Notified", callback_data="notify_done")]
-    ])
-    try:
-        await query.message.edit_reply_markup(reply_markup=notified_btn)
-    except MessageNotModified:
-        pass
-    await query.answer("✅ User has been notified successfully!", show_alert=True)
-
-
-@Client.on_callback_query(filters.regex(r"^notify_done$"))
-async def notify_done_cb(client, query):
-    """Handles clicks on the already-notified button — just shows an info alert."""
-    await query.answer("✅ This user has already been notified.", show_alert=True)
-
 
 async def manual_filters(client, message, text=False):
     settings = await get_settings(message.chat.id)
