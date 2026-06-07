@@ -1108,8 +1108,11 @@ async def notify_user_cb(client, query):
     if notify_key in NOTIFIED_REQUESTS:
         return await query.answer("✅ User has already been notified.", show_alert=True)
 
+    # Format the movie name: lowercase, strip, replace spaces with underscores
+    formatted_movie_name = movie_name.strip().lower().replace(' ', '_')
+
     # Build the deep-link URL for the user's Check Movie button
-    check_movie_url = "https://telegram.me/greenmoviebot?start=search_movie_name"
+    check_movie_url = f"https://telegram.me/greenmoviebot?start=search_{formatted_movie_name}"
     user_btn = InlineKeyboardMarkup([
         [InlineKeyboardButton("🎬 Check Movie", url=check_movie_url)]
     ])
