@@ -121,7 +121,37 @@ async def get_search_results(chat_id, query, file_type=None, max_results=10, off
         for cursor in results:
             for file in cursor:
                 files.append(file)
+    else:
+        files = await col.find(filter_criteria).sort('$natural', -1).skip(offset).limit(max_results).to_list(length=max_results)
         
+    raw_results_count = len(files)
+    
+    unique_files = []
+    seen_file_ids = set()
+    seen_file_names = set()
+    duplicate_file_ids = set()
+    
+    for file in files:
+        file_id = file.get('file_id')
+        file_name = file.get('file_name')
+        
+        if file_id not in seen_file_ids and file_name not in seen_file_names:
+            unique_files.append(file)
+            seen_file_ids.add(file_id)
+            seen_file_names.add(file_name)
+        else:
+            if file_id in seen_file_ids:
+                duplicate_file_ids.add(file_id)
+                
+    files = unique_files
+    unique_results_count = len(files)
+    
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"Search Query: '{query}' | Raw Results: {raw_results_count} | Unique Results: {unique_results_count} | Duplicate File IDs: {list(duplicate_file_ids)}")
+    print(f"Search Query: '{query}' | Raw Results: {raw_results_count} | Unique Results: {unique_results_count} | Duplicate File IDs: {list(duplicate_file_ids)}")
+
+    if MULTIPLE_DATABASE:
         # Count in parallel too
         counts = await asyncio.gather(
             col.count_documents(filter_criteria),
@@ -129,7 +159,6 @@ async def get_search_results(chat_id, query, file_type=None, max_results=10, off
         )
         total_results = sum(counts)
     else:
-        files = await col.find(filter_criteria).sort('$natural', -1).skip(offset).limit(max_results).to_list(length=max_results)
         total_results = await col.count_documents(filter_criteria)
 
     next_offset = "" if (offset + max_results) >= total_results else (offset + max_results)

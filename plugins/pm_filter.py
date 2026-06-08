@@ -2624,7 +2624,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             await query.message.edit_reply_markup(reply_markup)
     await query.answer(MSG_ALRT)
 
-async def auto_filter(client, name, msg, reply_msg, ai_search, spoll=False):
+async def auto_filter(client, name, msg, reply_msg, ai_search, spoll=False, exclude_file_id=None):
     try:
         curr_time = datetime.now(pytz.timezone('Asia/Kolkata')).time()
         if not spoll:
@@ -2644,6 +2644,12 @@ async def auto_filter(client, name, msg, reply_msg, ai_search, spoll=False):
                 print(f"Searching for: {db_search}")
                 try:
                     files, offset, total_results = await asyncio.wait_for(get_search_results(message.chat.id, db_search, offset=0, filter=True), timeout=15)
+                    
+                    if exclude_file_id and exclude_file_id != "None":
+                        original_len = len(files)
+                        files = [f for f in files if f.get("file_id") != exclude_file_id]
+                        if len(files) < original_len:
+                            total_results = max(0, total_results - 1)
                 except asyncio.TimeoutError:
                     return await reply_msg.edit_text("<b>❌ Search timed out. Your database might be slow.</b>")
                 
@@ -3030,7 +3036,7 @@ async def manual_filters(client, message, text=False):
                                 if settings['auto_ffilter']:
                                     ai_search = True
                                     reply_msg = await message.reply_text(f"<b><i>Searching For {message.text} 🔍</i></b>")
-                                    await auto_filter(client, message.text, message, reply_msg, ai_search)
+                                    await auto_filter(client, message.text, message, reply_msg, ai_search, exclude_file_id=fileid)
                                     try:
                                         if settings['auto_delete']:
                                             await joelkb.delete()
@@ -3059,7 +3065,7 @@ async def manual_filters(client, message, text=False):
                                 if settings['auto_ffilter']:
                                     ai_search = True
                                     reply_msg = await message.reply_text(f"<b><i>Searching For {message.text} 🔍</i></b>")
-                                    await auto_filter(client, message.text, message, reply_msg, ai_search)
+                                    await auto_filter(client, message.text, message, reply_msg, ai_search, exclude_file_id=fileid)
 
                         else:
                             button = eval(btn)
@@ -3075,7 +3081,7 @@ async def manual_filters(client, message, text=False):
                                 if settings['auto_ffilter']:
                                     ai_search = True
                                     reply_msg = await message.reply_text(f"<b><i>Searching For {message.text} 🔍</i></b>")
-                                    await auto_filter(client, message.text, message, reply_msg, ai_search)
+                                    await auto_filter(client, message.text, message, reply_msg, ai_search, exclude_file_id=fileid)
                                     try:
                                         if settings['auto_delete']:
                                             await joelkb.delete()
@@ -3104,7 +3110,7 @@ async def manual_filters(client, message, text=False):
                                 if settings['auto_ffilter']:
                                     ai_search = True
                                     reply_msg = await message.reply_text(f"<b><i>Searching For {message.text} 🔍</i></b>")
-                                    await auto_filter(client, message.text, message, reply_msg, ai_search)
+                                    await auto_filter(client, message.text, message, reply_msg, ai_search, exclude_file_id=fileid)
                     elif btn == "":
                         if STREAM_MODE:
                             button = [[InlineKeyboardButton('sᴛʀᴇᴀᴍ ᴀɴᴅ ᴅᴏᴡɴʟᴏᴀᴅ', callback_data=f'generate_stream_link:{fileid}')]]
@@ -3124,7 +3130,7 @@ async def manual_filters(client, message, text=False):
                             if settings['auto_ffilter']:
                                 ai_search = True
                                 reply_msg = await message.reply_text(f"<b><i>Searching For {message.text} 🔍</i></b>")
-                                await auto_filter(client, message.text, message, reply_msg, ai_search)
+                                await auto_filter(client, message.text, message, reply_msg, ai_search, exclude_file_id=fileid)
                                 try:
                                     if settings['auto_delete']:
                                         await joelkb.delete()
@@ -3153,7 +3159,7 @@ async def manual_filters(client, message, text=False):
                             if settings['auto_ffilter']:
                                 ai_search = True
                                 reply_msg = await message.reply_text(f"<b><i>Searching For {message.text} 🔍</i></b>")
-                                await auto_filter(client, message.text, message, reply_msg, ai_search)
+                                await auto_filter(client, message.text, message, reply_msg, ai_search, exclude_file_id=fileid)
                     else:
                         button = eval(btn)
                         joelkb = await message.reply_cached_media(
@@ -3166,7 +3172,7 @@ async def manual_filters(client, message, text=False):
                             if settings['auto_ffilter']:
                                 ai_search = True
                                 reply_msg = await message.reply_text(f"<b><i>Searching For {message.text} 🔍</i></b>")
-                                await auto_filter(client, message.text, message, reply_msg, ai_search)
+                                await auto_filter(client, message.text, message, reply_msg, ai_search, exclude_file_id=fileid)
                                 try:
                                     if settings['auto_delete']:
                                         await joelkb.delete()
@@ -3195,7 +3201,7 @@ async def manual_filters(client, message, text=False):
                             if settings['auto_ffilter']:
                                 ai_search = True
                                 reply_msg = await message.reply_text(f"<b><i>Searching For {message.text} 🔍</i></b>")
-                                await auto_filter(client, message.text, message, reply_msg, ai_search)
+                                await auto_filter(client, message.text, message, reply_msg, ai_search, exclude_file_id=fileid)
 
                 except Exception as e:
                     logger.exception(e)
@@ -3234,7 +3240,7 @@ async def global_filters(client, message, text=False):
                                     if settings['auto_ffilter']:
                                         ai_search = True
                                         reply_msg = await message.reply_text(f"<b><i>Searching For {message.text} 🔍</i></b>")
-                                        await auto_filter(client, message.text, message, reply_msg, ai_search)
+                                        await auto_filter(client, message.text, message, reply_msg, ai_search, exclude_file_id=fileid)
                                         try:
                                             if settings['auto_delete']:
                                                 await joelkb.delete()
@@ -3263,7 +3269,7 @@ async def global_filters(client, message, text=False):
                                     if settings['auto_ffilter']:
                                         ai_search = True
                                         reply_msg = await message.reply_text(f"<b><i>Searching For {message.text} 🔍</i></b>")
-                                        await auto_filter(client, message.text, message, reply_msg, ai_search) 
+                                        await auto_filter(client, message.text, message, reply_msg, ai_search, exclude_file_id=fileid) 
                             else:
                                 try:
                                     if settings['auto_delete']:
@@ -3291,7 +3297,7 @@ async def global_filters(client, message, text=False):
                                     if settings['auto_ffilter']:
                                         ai_search = True
                                         reply_msg = await message.reply_text(f"<b><i>Searching For {message.text} 🔍</i></b>")
-                                        await auto_filter(client, message.text, message, reply_msg, ai_search)
+                                        await auto_filter(client, message.text, message, reply_msg, ai_search, exclude_file_id=fileid)
                                         try:
                                             if settings['auto_delete']:
                                                 await joelkb.delete()
@@ -3320,7 +3326,7 @@ async def global_filters(client, message, text=False):
                                     if settings['auto_ffilter']:
                                         ai_search = True
                                         reply_msg = await message.reply_text(f"<b><i>Searching For {message.text} 🔍</i></b>")
-                                        await auto_filter(client, message.text, message, reply_msg, ai_search)
+                                        await auto_filter(client, message.text, message, reply_msg, ai_search, exclude_file_id=fileid)
                             else:
                                 try:
                                     if settings['auto_delete']:
@@ -3353,7 +3359,7 @@ async def global_filters(client, message, text=False):
                                 if settings['auto_ffilter']:
                                     ai_search = True
                                     reply_msg = await message.reply_text(f"<b><i>Searching For {message.text} 🔍</i></b>")
-                                    await auto_filter(client, message.text, message, reply_msg, ai_search)
+                                    await auto_filter(client, message.text, message, reply_msg, ai_search, exclude_file_id=fileid)
                                     try:
                                         if settings['auto_delete']:
                                             await joelkb.delete()
@@ -3382,7 +3388,7 @@ async def global_filters(client, message, text=False):
                                 if settings['auto_ffilter']:
                                     ai_search = True
                                     reply_msg = await message.reply_text(f"<b><i>Searching For {message.text} 🔍</i></b>")
-                                    await auto_filter(client, message.text, message, reply_msg, ai_search) 
+                                    await auto_filter(client, message.text, message, reply_msg, ai_search, exclude_file_id=fileid) 
                         else:
                             try:
                                 if settings['auto_delete']:
@@ -3409,7 +3415,7 @@ async def global_filters(client, message, text=False):
                                 if settings['auto_ffilter']:
                                     ai_search = True
                                     reply_msg = await message.reply_text(f"<b><i>Searching For {message.text} 🔍</i></b>")
-                                    await auto_filter(client, message.text, message, reply_msg, ai_search)
+                                    await auto_filter(client, message.text, message, reply_msg, ai_search, exclude_file_id=fileid)
                                     try:
                                         if settings['auto_delete']:
                                             await joelkb.delete()
@@ -3438,7 +3444,7 @@ async def global_filters(client, message, text=False):
                                 if settings['auto_ffilter']:
                                     ai_search = True
                                     reply_msg = await message.reply_text(f"<b><i>Searching For {message.text} 🔍</i></b>")
-                                    await auto_filter(client, message.text, message, reply_msg, ai_search)
+                                    await auto_filter(client, message.text, message, reply_msg, ai_search, exclude_file_id=fileid)
                         else:
                             try:
                                 if settings['auto_delete']:
