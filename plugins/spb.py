@@ -1,3 +1,4 @@
+import logging
 import asyncio
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -6,12 +7,19 @@ from database.users_chats_db import db
 from utils import broadcast_messages
 
 SPB_STATE = {}
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
-@Client.on_message(filters.command("spb") & filters.private)
+@Client.on_message(filters.command("spb") & filters.private & filters.incoming)
 async def spb_command(client, message):
     user_id = message.from_user.id
-    if user_id not in ADMINS:
-        return await message.reply_text("You are not authorized to use this command.")
+    logger.info(f"SPB command received | User ID: {user_id}")
+    
+    is_admin = user_id in ADMINS
+    logger.info(f"SPB admin check | User ID: {user_id} | Result: {'PASSED' if is_admin else 'FAILED'}")
+    
+    if not is_admin:
+        return await message.reply_text("❌ You are not authorized to use this command.")
     
     SPB_STATE[user_id] = {
         'state': 'WAITING_FOR_TITLE',
@@ -21,18 +29,21 @@ async def spb_command(client, message):
         'buttons': [],
         'current_button': 1
     }
-    
-    await message.reply_text("Send the movie title.")
+    logger.info(f"SPB session started | User ID: {user_id}")
+    await message.reply_text("📌 Send the movie title.")
 
 async def check_spb_state(_, __, message):
     return message.from_user and message.from_user.id in SPB_STATE
 
 spb_state_filter = filters.create(check_spb_state)
 
-@Client.on_message(filters.private & filters.user(ADMINS) & filters.text & ~filters.regex(r"^/") & spb_state_filter)
+@Client.on_message(filters.private & filters.user(ADMINS) & filters.text & filters.incoming & ~filters.regex(r"^/") & spb_state_filter, group=-1)
 async def spb_text_handler(client, message):
     user_id = message.from_user.id
-    
+    logger.info(f"SPB state handler triggered | User ID: {user_id}")
+    # Stop propagation so pm_filter.py does not also handle this message
+    message.stop_propagation()
+
     state_info = SPB_STATE[user_id]
     state = state_info['state']
     
