@@ -28,9 +28,6 @@ from TechVJ.bot import TechVJBot
 from TechVJ.util.keepalive import ping_server
 from TechVJ.bot.clients import initialize_clients
 
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
-
 
 async def start():
     print('\n')
@@ -41,7 +38,7 @@ async def start():
     
     # Load plugins directory automatically via Pyrogram
     try:
-        TechVJBot.load_plugins("plugins")
+        TechVJBot.load_plugins()
         print("✅ Plugins loaded successfully")
     except Exception as e:
         print(f"❌ Failed to load plugins: {e}")
@@ -91,6 +88,6 @@ async def start():
 
 if __name__ == '__main__':
     try:
-        loop.run_until_complete(start())
+        asyncio.run(start())
     except KeyboardInterrupt:
         logging.info('Service Stopped Bye 👋')
