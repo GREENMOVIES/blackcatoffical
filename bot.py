@@ -45,9 +45,16 @@ async def start():
         import traceback
         traceback.print_exc()
     
-    b_users, b_chats = await db.get_banned()
-    temp.BANNED_USERS = b_users
-    temp.BANNED_CHATS = b_chats
+    # Get banned users/chats - now uses correct event loop
+    try:
+        b_users, b_chats = await db.get_banned()
+        temp.BANNED_USERS = b_users
+        temp.BANNED_CHATS = b_chats
+    except Exception as e:
+        print(f"⚠️ Failed to load banned users/chats: {e}")
+        temp.BANNED_USERS = []
+        temp.BANNED_CHATS = []
+    
     me = await TechVJBot.get_me()
     temp.BOT = TechVJBot
     temp.ME = me.id
@@ -83,6 +90,8 @@ async def start():
     await web.TCPSite(app, bind_address, PORT).start()
     if URL:
         asyncio.create_task(ping_server())
+    
+    print("✅ Bot is running successfully!")
     await idle()
 
 
