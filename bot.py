@@ -47,9 +47,16 @@ async def start():
             import_path = "plugins.{}".format(plugin_name)
             spec = importlib.util.spec_from_file_location(import_path, plugins_dir)
             load = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(load)
-            sys.modules["plugins." + plugin_name] = load
-            print("#blackcatoffical Imported => " + plugin_name)
+           try:
+    spec.loader.exec_module(load)
+    sys.modules["plugins." + plugin_name] = load
+    print(f"✅ Imported => {plugin_name}")
+except Exception as e:
+    print(f"❌ FAILED TO IMPORT => {plugin_name}")
+    print(f"ERROR: {e}")
+
+    import traceback
+    traceback.print_exc()
     b_users, b_chats = await db.get_banned()
     temp.BANNED_USERS = b_users
     temp.BANNED_CHATS = b_chats
