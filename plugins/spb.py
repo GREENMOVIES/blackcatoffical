@@ -1,4 +1,6 @@
-print("🚀 SPB MODULE LOADED")
+logger = logging.getLogger(__name__)
+logger.info("🚀 SPB MODULE LOADED")
+logger.setLevel(logging.INFO)
 import logging
 import asyncio
 from pyrogram import Client, filters
