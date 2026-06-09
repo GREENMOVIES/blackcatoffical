@@ -28,9 +28,6 @@ from TechVJ.bot import TechVJBot
 from TechVJ.util.keepalive import ping_server
 from TechVJ.bot.clients import initialize_clients
 
-ppath = "plugins/*.py"
-files = glob.glob(ppath)
-TechVJBot.start()
 loop = asyncio.get_event_loop()
 
 
@@ -39,23 +36,15 @@ async def start():
     print('Initalizing Your Bot')
     bot_info = await TechVJBot.get_me()
     await initialize_clients()
-    for name in files:
-        with open(name) as a:
-            patt = Path(a.name)
-            plugin_name = patt.stem.replace(".py", "")
-            plugins_dir = Path(f"plugins/{plugin_name}.py")
-            import_path = "plugins.{}".format(plugin_name)
-            spec = importlib.util.spec_from_file_location(import_path, plugins_dir)
-            load = importlib.util.module_from_spec(spec)
-            try:
-                spec.loader.exec_module(load)
-                sys.modules["plugins." + plugin_name] = load
-                print(f"✅ Imported => {plugin_name}")
-            except Exception as e:
-                print(f"❌ FAILED TO IMPORT => {plugin_name}")
-                print(f"ERROR: {e}")
-                import traceback
-                traceback.print_exc()
+    
+    # Load plugins directory automatically via Pyrogram
+    try:
+        TechVJBot.load_plugins("plugins")
+        print("✅ Plugins loaded successfully")
+    except Exception as e:
+        print(f"❌ Failed to load plugins: {e}")
+        import traceback
+        traceback.print_exc()
     
     b_users, b_chats = await db.get_banned()
     temp.BANNED_USERS = b_users
