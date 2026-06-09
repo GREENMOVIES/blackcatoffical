@@ -28,12 +28,14 @@ from TechVJ.bot import TechVJBot
 from TechVJ.util.keepalive import ping_server
 from TechVJ.bot.clients import initialize_clients
 
-loop = asyncio.get_event_loop()
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
 
 
 async def start():
     print('\n')
     print('Initalizing Your Bot')
+    await TechVJBot.start()
     bot_info = await TechVJBot.get_me()
     await initialize_clients()
     
