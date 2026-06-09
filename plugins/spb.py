@@ -1,3 +1,4 @@
+print("🚀 SPB MODULE LOADED")
 import logging
 import asyncio
 from pyrogram import Client, filters
