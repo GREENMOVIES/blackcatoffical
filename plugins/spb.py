@@ -1,6 +1,3 @@
-logger = logging.getLogger(__name__)
-logger.info("🚀 SPB MODULE LOADED")
-logger.setLevel(logging.INFO)
 import logging
 import asyncio
 from pyrogram import Client, filters
@@ -15,7 +12,7 @@ logger.setLevel(logging.INFO)
 # In-memory state store for the SPB wizard
 SPB_STATE = {}
 
-# ─── Admin helper ────────────────────────────────────────────────────────────
+# ─── Admin helper ─────────────────────────────────────────────────────────[...]
 # ADMINS may contain ints OR strings depending on how id_pattern matched.
 # Always compare as int to be safe.
 def _is_admin(user_id: int) -> bool:
@@ -25,7 +22,7 @@ def _is_admin(user_id: int) -> bool:
     except Exception:
         return False
 
-# ─── State filter ────────────────────────────────────────────────────────────
+# ─── State filter ─────────────────────────────────────────────────────────[...]
 async def _check_spb_state(_, __, message) -> bool:
     try:
         return bool(message.from_user and message.from_user.id in SPB_STATE)
@@ -189,7 +186,7 @@ async def spb_text_handler(client, message):
             pass
 
 
-# ─── Preview builder ──────────────────────────────────────────────────────────
+# ─── Preview builder ───────────────────────────────────────────────────────[...]
 async def _send_spb_preview(client, chat_id: int, user_id: int):
     try:
         state_info = SPB_STATE[user_id]
