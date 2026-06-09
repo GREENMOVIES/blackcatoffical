@@ -47,19 +47,6 @@ async def start():
             import_path = "plugins.{}".format(plugin_name)
             spec = importlib.util.spec_from_file_location(import_path, plugins_dir)
             load = importlib.util.module_from_spec(spec)
-         async def start():
-    print('\n')
-    print('Initalizing Your Bot')
-    bot_info = await TechVJBot.get_me()
-    await initialize_clients()
-    for name in files:
-        with open(name) as a:
-            patt = Path(a.name)
-            plugin_name = patt.stem.replace(".py", "")
-            plugins_dir = Path(f"plugins/{plugin_name}.py")
-            import_path = "plugins.{}".format(plugin_name)
-            spec = importlib.util.spec_from_file_location(import_path, plugins_dir)
-            load = importlib.util.module_from_spec(spec)
             try:
                 spec.loader.exec_module(load)
                 sys.modules["plugins." + plugin_name] = load
@@ -110,10 +97,9 @@ async def start():
         asyncio.create_task(ping_server())
     await idle()
 
+
 if __name__ == '__main__':
     try:
         loop.run_until_complete(start())
     except KeyboardInterrupt:
         logging.info('Service Stopped Bye 👋')
-
-
