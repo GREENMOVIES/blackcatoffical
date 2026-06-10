@@ -5,11 +5,16 @@
 # Clone Code Credit : YT - #blackcatoffical / TG - #blackcatoffical / GitHub - @VJBots
 
 import re
+import asyncio
+import logging
 from Script import script
 from info import API_ID, API_HASH, CLONE_MODE, LOG_CHANNEL
 from pyrogram import Client, filters, enums
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, BotCommand
 from database.users_chats_db import db
+
+logger = logging.getLogger(__name__)
+
 
 @Client.on_message(filters.command('clone'))
 async def clone_menu(client, message):
@@ -55,18 +60,39 @@ async def delete_clone_menu(client, message):
     else:
         await message.reply("**ɴᴏ ᴄʟᴏɴᴇ ʙᴏᴛ ғᴏᴜɴᴅ**")
 
+async def _start_single_clone(bot_token: str):
+    """Start a single clone bot safely inside the running event loop."""
+    try:
+        vj = Client(
+            f"{bot_token}",
+            API_ID,
+            API_HASH,
+            bot_token=bot_token,
+            plugins={"root": "CloneTechVJ"},
+        )
+        await vj.start()
+        logger.info(f"Clone bot started: {bot_token[:10]}...")
+    except Exception as e:
+        logger.error(f"Failed to start clone bot ({bot_token[:10]}...): {e}")
+
+
 async def restart_bots():
-    bots_cursor = await db.get_all_bots()
-    bots = await bots_cursor.to_list(None)
-    for bot in bots:
-        bot_token = bot['bot_token']
-        try:
-            vj = Client(
-                f"{bot_token}", API_ID, API_HASH,
-                bot_token=bot_token,
-                plugins={"root": "CloneTechVJ"},
-            )
-            await vj.start()
-        except Exception as e:
-            print(f"Error while restarting bot with token {bot_token}: {e}")
-        
+    """Restart all clone bots without blocking the main event loop."""
+    try:
+        bots_cursor = await db.get_all_bots()
+        bots = await bots_cursor.to_list(None)
+        if not bots:
+            logger.info("No clone bots found to restart.")
+            return
+        for bot in bots:
+            bot_token = bot.get('bot_token')
+            if not bot_token:
+                continue
+            # Schedule each clone start as an independent task to avoid
+            # the 'Future attached to a different loop' error
+            asyncio.create_task(_start_single_clone(bot_token))
+            await asyncio.sleep(0.5)  # small delay between starts
+        logger.info(f"Scheduled restart for {len(bots)} clone bot(s).")
+    except Exception as e:
+        logger.error(f"restart_bots error: {e}")
+
