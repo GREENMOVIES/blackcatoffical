@@ -36,14 +36,7 @@ async def start():
     bot_info = await TechVJBot.get_me()
     await initialize_clients()
     
-    # Load plugins directory automatically via Pyrogram
-    try:
-        TechVJBot.load_plugins()
-        print("✅ Plugins loaded successfully")
-    except Exception as e:
-        print(f"❌ Failed to load plugins: {e}")
-        import traceback
-        traceback.print_exc()
+    print("✅ Plugins loaded via Pyrogram's plugins= parameter")
     
     # Get banned users/chats - now uses correct event loop
     try:
