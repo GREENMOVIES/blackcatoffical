@@ -4,10 +4,13 @@
 
 from pyrogram import Client, types
 import asyncio
+import logging
 from info import *
 from utils import temp
 from typing import Union, Optional, AsyncGenerator
 from aiohttp import web
+
+logger = logging.getLogger(__name__)
 
 
 class TechVJXBot(Client):
@@ -22,6 +25,32 @@ class TechVJXBot(Client):
             plugins={"root": "plugins"},
             sleep_threshold=5,
         )
+
+    async def start(self, *args, **kwargs):
+        """
+        Override start to ensure proper initialization and handler registration.
+        This ensures handlers are properly attached AFTER the client is fully initialized.
+        """
+        print("🔄 Starting TechVJBot...")
+        result = await super().start(*args, **kwargs)
+        print("✅ TechVJBot initialization complete")
+        
+        # Log handler registration
+        try:
+            total_handlers = sum(len(h) for h in self.dispatcher.handlers.values())
+            print(f"✅ Handlers registered: {total_handlers}")
+            logger.info(f"Handlers registered on TechVJBot: {total_handlers}")
+            
+            if total_handlers > 0:
+                print("✅ Message handlers are properly registered")
+                logger.info("Message handlers are properly registered")
+            else:
+                print("⚠️ WARNING: No handlers registered!")
+                logger.warning("No handlers registered on TechVJBot")
+        except Exception as e:
+            logger.error(f"Error checking handlers: {e}")
+        
+        return result
 
     async def set_self(self):
         temp.BOT = self
