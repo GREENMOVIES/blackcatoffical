@@ -24,14 +24,14 @@ logger.setLevel(logging.INFO)
 join_db = JoinReqs
 BTN_URL_REGEX = re.compile(r"(\[([^\[]+?)\]\((buttonurl|buttonalert):(?:/{0,2})(.+?)(:same)?\))")
 
-imdb = Cinemagoer() 
-TOKENS = {}
-VERIFIED = {}
-BANNED = {}
-SECOND_SHORTENER = {}
-SMART_OPEN = '“'
-SMART_CLOSE = '”'
-START_CHAR = ('\'', '"', SMART_OPEN)
+#imdb = Cinemagoer() 
+#TOKENS = {}
+#VERIFIED = {}
+#BANNED = {}
+#SECOND_SHORTENER = {}
+#SMART_OPEN = '“'
+#SMART_CLOSE = '”'
+#START_CHAR = ('\'', '"', SMART_OPEN)
 
 # temp db for banned 
 class temp(object):
