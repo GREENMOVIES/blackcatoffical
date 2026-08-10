@@ -20,22 +20,34 @@ class JoinReqs:
             return False
 
     async def add_user(self, user_id, first_name, username, date):
+        if not self.isActive():
+            return
         try:
             await self.col.insert_one({"_id": int(user_id),"user_id": int(user_id), "first_name": first_name, "username": username, "date": date})
         except:
             pass
 
     async def get_user(self, user_id):
+        if not self.isActive():
+            return None
         return await self.col.find_one({"user_id": int(user_id)})
 
     async def get_all_users(self):
-        return await self.col.find().to_list(None)
+        if not self.isActive():
+            return []
+        return await self.col.find().to_list(length=None)
 
     async def delete_user(self, user_id):
+        if not self.isActive():
+            return
         await self.col.delete_one({"user_id": int(user_id)})
 
     async def delete_all_users(self):
+        if not self.isActive():
+            return
         await self.col.delete_many({})
 
     async def get_all_users_count(self):
+        if not self.isActive():
+            return 0
         return await self.col.count_documents({})
