@@ -20,7 +20,7 @@ async def add_connection(group_id, user_id):
         { "_id": 0, "active_group": 0 }
     )
     if query is not None:
-        group_ids = [x["group_id"] for x in query["group_details"]]
+        group_ids = [x.get("group_id") for x in query.get("group_details", [])]
         if group_id in group_ids:
             return False
 
@@ -64,7 +64,7 @@ async def active_connection(user_id):
     if not query:
         return None
 
-    group_id = query['active_group']
+    group_id = query.get('active_group')
     return int(group_id) if group_id != None else None
 
 
@@ -74,7 +74,7 @@ async def all_connections(user_id):
         { "_id": 0, "active_group": 0 }
     )
     if query is not None:
-        return [x["group_id"] for x in query["group_details"]]
+        return [x.get("group_id") for x in query.get("group_details", [])]
     else:
         return None
 
@@ -84,7 +84,7 @@ async def if_active(user_id, group_id):
         { "_id": user_id },
         { "_id": 0, "group_details": 0 }
     )
-    return query is not None and query['active_group'] == group_id
+    return query is not None and query.get('active_group') == group_id
 
 
 async def make_active(user_id, group_id):
@@ -116,9 +116,9 @@ async def delete_connection(user_id, group_id):
             { "_id": user_id },
             { "_id": 0 }
         )
-        if len(query["group_details"]) >= 1:
-            if query['active_group'] == group_id:
-                prvs_group_id = query["group_details"][len(query["group_details"]) - 1]["group_id"]
+        if query and len(query.get("group_details", [])) >= 1:
+            if query.get('active_group') == group_id:
+                prvs_group_id = query["group_details"][len(query["group_details"]) - 1].get("group_id")
 
                 mycol.update_one(
                     {'_id': user_id},

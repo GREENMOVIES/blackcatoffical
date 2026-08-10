@@ -25,13 +25,18 @@ async def save_file(media):
     """Save file in the database."""
     
     file_id = unpack_new_file_id(media.file_id)
-    file_name = clean_file_name(media.file_name)
+    raw_file_name = getattr(media, 'file_name', None) or getattr(media, 'title', None) or ""
+    file_name = clean_file_name(raw_file_name)
     
+    caption_text = None
+    if getattr(media, 'caption', None):
+        caption_text = media.caption.html if hasattr(media.caption, 'html') else str(media.caption)
+
     file = {
         'file_id': file_id,
         'file_name': file_name,
-        'file_size': media.file_size,
-        'caption': media.caption.html if media.caption else None
+        'file_size': getattr(media, 'file_size', 0),
+        'caption': caption_text
     }
 
     if await is_file_already_saved(file_id, file_name):

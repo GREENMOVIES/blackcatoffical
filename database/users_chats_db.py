@@ -253,8 +253,12 @@ class Database:
     
     async def check_remaining_uasge(self, userid):
         user_id = userid
-        user_data = await self.get_user(user_id)        
+        user_data = await self.get_user(user_id)
+        if not user_data:
+            return None
         expiry_time = user_data.get("expiry_time")
+        if not expiry_time:
+            return None
         # Calculate remaining time
         remaining_time = expiry_time - datetime.datetime.now()
         return remaining_time
@@ -284,28 +288,28 @@ class Database:
 
     async def get_thumbnail(self, id):
         user = await self.col.find_one({'id': int(id)})
-        return user.get('file_id', None)
+        return user.get('file_id', None) if user else None
 
     async def set_caption(self, id, caption):
         await self.col.update_one({'id': int(id)}, {'$set': {'caption': caption}})
 
     async def get_caption(self, id):
         user = await self.col.find_one({'id': int(id)})
-        return user.get('caption', None)
+        return user.get('caption', None) if user else None
 
     async def set_msg_command(self, id, com):
         await self.col.update_one({'id': int(id)}, {'$set': {'message_command': com}})
 
     async def get_msg_command(self, id):
         user = await self.col.find_one({'id': int(id)})
-        return user.get('message_command', None)
+        return user.get('message_command', None) if user else None
 
     async def set_save(self, id, save):
         await self.col.update_one({'id': int(id)}, {'$set': {'save': save}})
 
     async def get_save(self, id):
         user = await self.col.find_one({'id': int(id)})
-        return user.get('save', False) 
+        return user.get('save', False) if user else False 
     
 
 db = Database(USER_DB_URI, DATABASE_NAME)

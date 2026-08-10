@@ -24,14 +24,14 @@ logger.setLevel(logging.INFO)
 join_db = JoinReqs
 BTN_URL_REGEX = re.compile(r"(\[([^\[]+?)\]\((buttonurl|buttonalert):(?:/{0,2})(.+?)(:same)?\))")
 
-#imdb = Cinemagoer() 
-#TOKENS = {}
-#VERIFIED = {}
-#BANNED = {}
-#SECOND_SHORTENER = {}
-#SMART_OPEN = '“'
-#SMART_CLOSE = '”'
-#START_CHAR = ('\'', '"', SMART_OPEN)
+imdb = Cinemagoer('s3', uri='sqlite:///cinemagoer.db') 
+TOKENS = {}
+VERIFIED = {}
+BANNED = {}
+SECOND_SHORTENER = {}
+SMART_OPEN = '“'
+SMART_CLOSE = '”'
+START_CHAR = ('\'', '"', SMART_OPEN)
 
 # temp db for banned 
 class temp(object):
@@ -55,7 +55,7 @@ async def pub_is_subscribed(bot, query, channel):
     for id in channel:
         chat = await bot.get_chat(int(id))
         try:
-            await bot.get_chat_member(id, query.from_user.id)
+            await bot.get_chat_member(int(id), query.from_user.id)
         except UserNotParticipant:
             btn.append(
                 [InlineKeyboardButton(f'Join {chat.title}', url=chat.invite_link)]
@@ -65,6 +65,8 @@ async def pub_is_subscribed(bot, query, channel):
     return btn
 
 async def is_subscribed(bot, query):
+    if not AUTH_CHANNEL:
+        return True
     if REQUEST_TO_JOIN_MODE == True and join_db().isActive():
         try:
             user = await join_db().get_user(query.from_user.id)
