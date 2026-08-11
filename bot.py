@@ -4,7 +4,7 @@
 
 # Clone Code Credit : YT - @Tech_VJ / TG - @VJ_Bots / GitHub - @VJBots
 
-import sys, glob, importlib, logging, logging.config, pytz, asyncio
+import sys, glob, importlib, logging, logging.config, pytz, asyncio, signal, traceback
 from pathlib import Path
 
 # Get logging configurations
@@ -12,6 +12,9 @@ logging.config.fileConfig('logging.conf')
 logging.getLogger().setLevel(logging.INFO)
 logging.getLogger("pyrogram").setLevel(logging.ERROR)
 logging.getLogger("cinemagoer").setLevel(logging.ERROR)
+
+logger = logging.getLogger("recovery")
+logger.setLevel(logging.INFO)
 
 from pyrogram import Client, idle
 from database.users_chats_db import db
@@ -31,13 +34,121 @@ from TechVJ.bot.clients import initialize_clients
 ppath = "plugins/*.py"
 files = glob.glob(ppath)
 
+RUNNING_TASKS = {}
+IS_SHUTTING_DOWN = False
+
+
+async def verify_mongodb_connection(max_retries=5):
+    """Verify and reconnect to MongoDB with exponential backoff retries."""
+    delays = [2, 5, 10, 15, 30]
+    for attempt in range(max_retries):
+        try:
+            logger.info(f"Connecting to MongoDB (attempt {attempt + 1}/{max_retries})...")
+            await db.db.command("ping")
+            logger.info("Reconnection: MongoDB connected successfully.")
+            return True
+        except Exception as e:
+            logger.error(f"MongoDB connection error: {e}. Retrying in {delays[min(attempt, len(delays)-1)]}s...")
+            if attempt == max_retries - 1:
+                logger.critical("MongoDB error: Unable to connect after max retries.")
+                raise e
+            await asyncio.sleep(delays[min(attempt, len(delays)-1)])
+
+
+async def start_bot_with_retry(client, max_retries=5):
+    """Start Pyrogram client with retry logic for network and Telegram API failures."""
+    delays = [2, 5, 10, 15, 30]
+    for attempt in range(max_retries):
+        try:
+            logger.info(f"Starting Telegram Client (attempt {attempt + 1}/{max_retries})...")
+            await client.start()
+            logger.info("Telegram Client started successfully.")
+            return True
+        except Exception as e:
+            logger.error(f"Telegram API connection error: {e}. Retrying in {delays[min(attempt, len(delays)-1)]}s...")
+            if attempt == max_retries - 1:
+                logger.critical("Fatal: Failed to connect to Telegram API after max retries.")
+                raise e
+            await asyncio.sleep(delays[min(attempt, len(delays)-1)])
+
+
+async def watchdog_monitor():
+    """Watchdog monitor that periodically checks background tasks and restarts failed ones."""
+    logger.info("Watchdog monitoring started.")
+    while not IS_SHUTTING_DOWN:
+        try:
+            for task_name, task in list(RUNNING_TASKS.items()):
+                if task.done():
+                    exc = task.exception()
+                    if exc:
+                        logger.error(f"Watchdog detected failed task '{task_name}': {exc}\n{traceback.format_exc()}")
+                        # Automatic Task Recovery
+                        if task_name == "ping_server" and ON_HEROKU:
+                            logger.info("Task restart: Resuming ping_server...")
+                            RUNNING_TASKS["ping_server"] = asyncio.create_task(ping_server())
+                        elif task_name == "catchup_indexing":
+                            logger.info("Task restart: Resuming catchup_indexing...")
+                            try:
+                                from plugins.channel import catchup_channel_indexing
+                                RUNNING_TASKS["catchup_indexing"] = asyncio.create_task(catchup_channel_indexing(TechVJBot))
+                            except Exception as er:
+                                logger.error(f"Failed to restart catchup_indexing: {er}")
+                    else:
+                        logger.info(f"Task '{task_name}' finished cleanly.")
+        except Exception as e:
+            logger.error(f"Watchdog error: {e}")
+        await asyncio.sleep(15)
+
+
+async def shutdown_bot():
+    """Gracefully shutdown the bot, saving runtime state and stopping tasks."""
+    global IS_SHUTTING_DOWN
+    if IS_SHUTTING_DOWN:
+        return
+    IS_SHUTTING_DOWN = True
+    logger.info("Shutdown: Initiating graceful shutdown...")
+    logger.info("Saving runtime state before exit...")
+    try:
+        for name, task in list(RUNNING_TASKS.items()):
+            if not task.done():
+                logger.info(f"Stopping background task '{name}'...")
+                task.cancel()
+        logger.info("Stopping Telegram client...")
+        await TechVJBot.stop()
+        logger.info("Shutdown: Clean shutdown completed successfully.")
+    except Exception as e:
+        logger.error(f"Error during shutdown: {e}")
+    finally:
+        sys.exit(0)
+
+
+def setup_signal_handlers():
+    """Register SIGTERM and SIGINT signal handlers for graceful shutdown."""
+    def _on_signal(sig, frame=None):
+        signame = signal.Signals(sig).name
+        logger.info(f"Received signal {signame}. Triggering graceful shutdown.")
+        asyncio.create_task(shutdown_bot())
+
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        try:
+            asyncio.get_event_loop().add_signal_handler(sig, lambda s=sig: _on_signal(s))
+        except (NotImplementedError, AttributeError):
+            signal.signal(sig, _on_signal)
+
 
 async def start():
-    print('\n')
-    print('Initalizing Your Bot')
-    await TechVJBot.start()
+    logger.info("Startup: Initializing bot recovery system...")
+    print('\nInitalizing Your Bot')
+
+    # Step 1: Reconnect & Verify MongoDB Connection
+    await verify_mongodb_connection()
+
+    # Step 2: Start Telegram Client with Retries
+    await start_bot_with_retry(TechVJBot)
     bot_info = await TechVJBot.get_me()
     await initialize_clients()
+
+    # Step 3: Reload Plugins
     for name in files:
         if name.endswith("__init__.py"):
             continue
@@ -52,8 +163,16 @@ async def start():
                 spec.loader.exec_module(load)
                 sys.modules["plugins." + plugin_name] = load
                 print("Tech VJ Imported => " + plugin_name)
+
+    logger.info("Recovery: Plugins reloaded successfully.")
+
+    # Step 4: Setup Background Tasks & Watchdog
     if ON_HEROKU:
-        asyncio.create_task(ping_server())
+        RUNNING_TASKS["ping_server"] = asyncio.create_task(ping_server())
+
+    RUNNING_TASKS["watchdog"] = asyncio.create_task(watchdog_monitor())
+
+    # Step 5: Restore State & Resume Indexing
     b_users, b_chats = await db.get_banned()
     temp.BANNED_USERS = b_users
     temp.BANNED_CHATS = b_chats
@@ -62,13 +181,21 @@ async def start():
     temp.ME = me.id
     temp.U_NAME = me.username
     temp.B_NAME = me.first_name
+
+    logger.info("Resume indexing: Triggering channel indexing catch-up...")
+    try:
+        from plugins.channel import catchup_channel_indexing
+        RUNNING_TASKS["catchup_indexing"] = asyncio.create_task(catchup_channel_indexing(TechVJBot))
+    except Exception as e:
+        logger.error(f"Failed to start catchup indexing task: {e}")
+
     logging.info(script.LOGO)
     tz = pytz.timezone('Asia/Kolkata')
     today = date.today()
     now = datetime.now(tz)
-    time = now.strftime("%H:%M:%S %p")
+    time_str = now.strftime("%H:%M:%S %p")
     try:
-        await TechVJBot.send_message(chat_id=LOG_CHANNEL, text=script.RESTART_TXT.format(today, time))
+        await TechVJBot.send_message(chat_id=LOG_CHANNEL, text=script.RESTART_TXT.format(today, time_str))
     except:
         print("Make Your Bot Admin In Log Channel With Full Rights")
     for ch in CHANNELS:
@@ -82,16 +209,21 @@ async def start():
         await k.delete()
     except:
         print("Make Your Bot Admin In Force Subscribe Channel With Full Rights")
+
     if CLONE_MODE == True:
         print("Restarting All Clone Bots.......")
         await restart_bots()
         print("Restarted All Clone Bots.")
+
     app = web.AppRunner(await web_server())
     await app.setup()
     bind_address = "0.0.0.0"
     await web.TCPSite(app, bind_address, int(PORT)).start()
+
+    setup_signal_handlers()
+    logger.info("Startup complete. Bot is fully active and monitoring.")
     await idle()
-    await TechVJBot.stop()
+    await shutdown_bot()
 
 
 if __name__ == '__main__':
@@ -100,3 +232,6 @@ if __name__ == '__main__':
         loop.run_until_complete(start())
     except KeyboardInterrupt:
         logging.info('Service Stopped Bye 👋')
+    except Exception as fatal_err:
+        logging.critical(f"Fatal crash: {fatal_err}\n{traceback.format_exc()}")
+        sys.exit(1)
