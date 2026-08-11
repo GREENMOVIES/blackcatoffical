@@ -185,7 +185,7 @@ STREAM_MODE = bool(environ.get('STREAM_MODE', True)) # Set True or False
 # If Stream Mode Is True Then Fill All Required Variable, If False Then Don't Fill.
 MULTI_CLIENT = False
 SLEEP_THRESHOLD = int(environ.get('SLEEP_THRESHOLD', '60'))
-PING_INTERVAL = int(environ.get("PING_INTERVAL", "600"))  # 10 minutes
+PING_INTERVAL = int(environ.get("PING_INTERVAL", "240"))  # 4 minutes — keeps Koyeb/Heroku awake
 ON_HEROKU = 'DYNO' in environ
 ON_KOYEB = 'KOYEB_PROJECT_ID' in environ or 'KOYEB_APP_NAME' in environ
 URL = environ.get("URL", "https://forthcoming-carmine-greenfilmfx-8e011ace.koyeb.app/")
