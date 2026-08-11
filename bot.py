@@ -5,6 +5,8 @@
 # Clone Code Credit : YT - @Tech_VJ / TG - @VJ_Bots / GitHub - @VJBots
 
 import sys, glob, importlib, logging, logging.config, pytz, asyncio, signal, traceback
+from pyrogram.errors import (NetworkMigrate, PhoneMigrate, FloodWait,
+    ServiceUnavailable, BadRequest, Unauthorized, ConnectionError as PyroConnectionError)
 from pathlib import Path
 
 # Get logging configurations
@@ -55,21 +57,69 @@ async def verify_mongodb_connection(max_retries=5):
             await asyncio.sleep(delays[min(attempt, len(delays)-1)])
 
 
+# Errors that indicate a transient / recoverable connection problem
+_RETRIABLE_ERRORS = (
+    PyroConnectionError,
+    NetworkMigrate,
+    PhoneMigrate,
+    FloodWait,
+    ServiceUnavailable,
+    TimeoutError,
+    ConnectionError,
+    OSError,
+)
+
+# Errors that are programming bugs — never retry, fail immediately
+_FATAL_ERRORS = (
+    AttributeError,
+    ImportError,
+    TypeError,
+    SyntaxError,
+    NameError,
+)
+
+
 async def start_bot_with_retry(client, max_retries=5):
-    """Start Pyrogram client with retry logic for network and Telegram API failures."""
+    """Start Pyrogram client with retry only for transient connection failures.
+
+    Guards against calling start() on an already-connected client.
+    Fails immediately for programming errors (AttributeError, ImportError, etc.).
+    """
     delays = [2, 5, 10, 15, 30]
+
+    # Guard: never call start() if the client is already connected.
+    if getattr(client, 'is_connected', False):
+        logger.info("Telegram Client is already connected — skipping start().")
+        return True
+
     for attempt in range(max_retries):
         try:
             logger.info(f"Starting Telegram Client (attempt {attempt + 1}/{max_retries})...")
             await client.start()
             logger.info("Telegram Client started successfully.")
             return True
-        except Exception as e:
-            logger.error(f"Telegram API connection error: {e}. Retrying in {delays[min(attempt, len(delays)-1)]}s...")
+        except _FATAL_ERRORS as e:
+            # Programming errors — do not retry, propagate immediately
+            logger.critical(
+                f"Fatal programming error starting Telegram Client: {e}\n{traceback.format_exc()}"
+            )
+            raise
+        except _RETRIABLE_ERRORS as e:
+            wait = delays[min(attempt, len(delays) - 1)]
+            logger.error(
+                f"Transient connection error (attempt {attempt + 1}/{max_retries}): {e}. "
+                f"Retrying in {wait}s..."
+            )
             if attempt == max_retries - 1:
                 logger.critical("Fatal: Failed to connect to Telegram API after max retries.")
-                raise e
-            await asyncio.sleep(delays[min(attempt, len(delays)-1)])
+                raise
+            await asyncio.sleep(wait)
+        except Exception as e:
+            # Unknown exception — log and do not retry
+            logger.critical(
+                f"Unexpected error starting Telegram Client: {e}\n{traceback.format_exc()}"
+            )
+            raise
 
 
 async def watchdog_monitor():
@@ -149,20 +199,32 @@ async def start():
     await initialize_clients()
 
     # Step 3: Reload Plugins
-    for name in files:
-        if name.endswith("__init__.py"):
-            continue
-        with open(name) as a:
-            patt = Path(a.name)
-            plugin_name = patt.stem.replace(".py", "")
-            plugins_dir = Path(f"plugins/{plugin_name}.py")
-            import_path = "plugins.{}".format(plugin_name)
-            spec = importlib.util.spec_from_file_location(import_path, plugins_dir)
-            if spec and spec.loader:
-                load = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(load)
-                sys.modules["plugins." + plugin_name] = load
-                print("Tech VJ Imported => " + plugin_name)
+    # Any plugin load failure stops the client cleanly and exits.
+    try:
+        for name in files:
+            if name.endswith("__init__.py"):
+                continue
+            with open(name) as a:
+                patt = Path(a.name)
+                plugin_name = patt.stem.replace(".py", "")
+                plugins_dir = Path(f"plugins/{plugin_name}.py")
+                import_path = "plugins.{}".format(plugin_name)
+                spec = importlib.util.spec_from_file_location(import_path, plugins_dir)
+                if spec and spec.loader:
+                    load = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(load)
+                    sys.modules["plugins." + plugin_name] = load
+                    print("Tech VJ Imported => " + plugin_name)
+    except Exception as e:
+        logger.critical(
+            f"Plugin loading failed for '{plugin_name}': {e}\n{traceback.format_exc()}"
+        )
+        # Stop client cleanly before exiting so the connection is released
+        try:
+            await TechVJBot.stop()
+        except Exception:
+            pass
+        sys.exit(1)
 
     logger.info("Recovery: Plugins reloaded successfully.")
 

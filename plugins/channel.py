@@ -170,8 +170,12 @@ async def init_user_session():
     if not UserClient:
         return
     try:
-        logger.info("Starting User Session client...")
-        await UserClient.start()
+        # Guard: only call start() when not already connected
+        if not getattr(UserClient, 'is_connected', False):
+            logger.info("Starting User Session client...")
+            await UserClient.start()
+        else:
+            logger.info("User Session client already connected — skipping start().")
         user_me = await UserClient.get_me()
         logger.info(f"User session started successfully as @{user_me.username or user_me.id}")
 
@@ -199,7 +203,6 @@ async def init_user_session():
 
 # Bot Client Live Event Handlers
 @Client.on_message(filters.chat(CHANNELS) & media_filter)
-@Client.on_channel_post(filters.chat(CHANNELS) & media_filter)
 async def media(bot, message):
     """Triggered on new channel posts or chat updates in CHANNELS."""
     logger.info(f"Received channel post: {message.id} in channel_id: {message.chat.id}")
