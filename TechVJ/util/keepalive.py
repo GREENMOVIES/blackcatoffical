@@ -11,18 +11,21 @@ async def ping_server():
         logging.info("URL not provided, Keep-Alive service not started.")
         return
     
-    # Wait for the web server to fully start
-    await asyncio.sleep(15)
-    
     # Ping interval: 60s (1 minute) to ensure Koyeb/Heroku container stays awake
     interval = max(15, min(PING_INTERVAL, 60))
-    logging.info(f"Keep-Alive service started. Pinging every {interval} seconds. External: {URL}")
+
+    clean_url = URL.strip().rstrip('/')
+    ext_url = clean_url if clean_url.endswith('/ping') else f"{clean_url}/ping"
+    logging.info(f"Keep-Alive service started. Pinging every {interval} seconds. External: {ext_url}")
     
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
 
     local_url = f"http://127.0.0.1:{PORT}/ping"
+
+    # Wait for the web server to fully start
+    await asyncio.sleep(15)
 
     while True:
         try:
@@ -43,15 +46,14 @@ async def ping_server():
                     logging.error(f"Keep-Alive Local Error pinging {local_url}: {le}")
 
                 # 2. Ping External/Public Koyeb URL (verifies external edge routing)
-                if URL:
-                    try:
-                        async with session.get(URL) as resp:
-                            if resp.status == 200:
-                                logging.info(f"Keep-Alive External: Successfully pinged {URL} (Status: {resp.status})")
-                            else:
-                                logging.warning(f"Keep-Alive External: Pinged {URL} got status {resp.status}")
-                    except Exception as ee:
-                        logging.error(f"Keep-Alive External Error pinging {URL}: {ee}")
+                try:
+                    async with session.get(ext_url, allow_redirects=True) as resp:
+                        if resp.status == 200:
+                            logging.info("Keep-Alive External: Success")
+                        else:
+                            logging.warning(f"Keep-Alive External: Failed ({resp.status})")
+                except Exception as ee:
+                    logging.error(f"Keep-Alive External: Failed ({ee})")
 
         except Exception as e:
             logging.error(f"Keep-Alive Loop Error: {e}\n{traceback.format_exc()}")

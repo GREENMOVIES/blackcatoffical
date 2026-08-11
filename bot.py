@@ -38,6 +38,7 @@ files = glob.glob(ppath)
 
 RUNNING_TASKS = {}
 IS_SHUTTING_DOWN = False
+LONG_RUNNING_TASKS = {"ping_server", "live_indexing", "websocket", "monitoring"}
 
 
 async def verify_mongodb_connection(max_retries=5):
@@ -156,22 +157,25 @@ async def watchdog_monitor():
         try:
             for task_name, task in list(RUNNING_TASKS.items()):
                 if task.done():
-                    exc = task.exception()
+                    exc = None
+                    try:
+                        exc = task.exception()
+                    except asyncio.CancelledError:
+                        pass
+
                     if exc:
                         logger.error(f"Watchdog detected failed task '{task_name}': {exc}\n{traceback.format_exc()}")
-                        # Automatic Task Recovery
-                        if task_name == "ping_server" and (ON_HEROKU or ON_KOYEB or URL):
-                            logger.info("Task restart: Resuming ping_server...")
-                            RUNNING_TASKS["ping_server"] = asyncio.create_task(ping_server())
-                        elif task_name == "catchup_indexing":
-                            logger.info("Task restart: Resuming catchup_indexing...")
-                            try:
-                                from plugins.channel import catchup_channel_indexing
-                                RUNNING_TASKS["catchup_indexing"] = asyncio.create_task(catchup_channel_indexing(TechVJBot))
-                            except Exception as er:
-                                logger.error(f"Failed to restart catchup_indexing: {er}")
+                        # Automatic Task Recovery for long-running background tasks
+                        if task_name in LONG_RUNNING_TASKS:
+                            if task_name == "ping_server" and (ON_HEROKU or ON_KOYEB or URL):
+                                logger.info("Task restart: Resuming ping_server...")
+                                RUNNING_TASKS["ping_server"] = asyncio.create_task(ping_server())
+                        else:
+                            RUNNING_TASKS.pop(task_name, None)
                     else:
                         logger.info(f"Task '{task_name}' finished cleanly.")
+                        if task_name not in LONG_RUNNING_TASKS:
+                            RUNNING_TASKS.pop(task_name, None)
         except Exception as e:
             logger.error(f"Watchdog error: {e}")
         await asyncio.sleep(15)
