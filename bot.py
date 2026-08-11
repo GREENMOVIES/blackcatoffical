@@ -6,7 +6,7 @@
 
 import sys, glob, importlib, logging, logging.config, pytz, asyncio, signal, traceback
 from pyrogram.errors import (NetworkMigrate, PhoneMigrate, FloodWait,
-    ServiceUnavailable, BadRequest, Unauthorized, ConnectionError as PyroConnectionError)
+    ServiceUnavailable, BadRequest, Unauthorized)
 from pathlib import Path
 
 # Get logging configurations
@@ -62,7 +62,6 @@ async def verify_mongodb_connection(max_retries=5):
 # Pyrogram raises ConnectionError("Client is already connected") when
 # the client is already up — that must be treated as success, not retried.
 _RETRIABLE_ERRORS = (
-    PyroConnectionError,
     NetworkMigrate,
     PhoneMigrate,
     FloodWait,
