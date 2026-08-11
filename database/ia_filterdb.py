@@ -229,4 +229,39 @@ def unpack_new_file_id(new_file_id):
         )
     )
     return file_id
-    
+
+
+# Indexing Progress Tracking
+progress_col = db['index_progress']
+
+async def retry_mongo_op(coro_fn, max_retries=3, delays=[1, 2, 4]):
+    """Retry MongoDB operations up to max_retries times with backoff delays."""
+    import logging
+    logger = logging.getLogger(__name__)
+    for attempt in range(max_retries):
+        try:
+            return await coro_fn()
+        except Exception as e:
+            if attempt == max_retries - 1:
+                logger.error(f"MongoDB error after {max_retries} attempts: {e}")
+                raise e
+            logger.warning(f"MongoDB operation failed (attempt {attempt + 1}/{max_retries}): {e}. Retrying in {delays[attempt]}s...")
+            await asyncio.sleep(delays[attempt])
+
+async def get_last_indexed_msg_id(chat_id):
+    """Get the highest message_id successfully indexed for a chat."""
+    async def _op():
+        doc = await progress_col.find_one({'_id': str(chat_id)})
+        return doc.get('last_msg_id', 0) if doc else 0
+    return await retry_mongo_op(_op)
+
+async def update_last_indexed_msg_id(chat_id, msg_id):
+    """Update the last indexed message_id for a chat."""
+    async def _op():
+        await progress_col.update_one(
+            {'_id': str(chat_id)},
+            {'$max': {'last_msg_id': int(msg_id)}},
+            upsert=True
+        )
+    return await retry_mongo_op(_op)
+
