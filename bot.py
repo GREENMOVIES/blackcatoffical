@@ -256,7 +256,6 @@ async def start():
     logger.info("Recovery: Plugins reloaded successfully.")
 
     # Step 4: Setup Background Tasks & Watchdog
-    # Start keep-alive pinger on Heroku, Koyeb, or any deployment with a URL.
     if ON_HEROKU or ON_KOYEB or URL:
         RUNNING_TASKS["ping_server"] = asyncio.create_task(ping_server())
         logger.info(f"Keep-alive pinger started (interval: {PING_INTERVAL}s, target: {URL})")

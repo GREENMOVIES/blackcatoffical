@@ -20,6 +20,8 @@ async def root_route_handler(request):
     return web.json_response("BenFilterBot")
 
 @routes.get("/ping", allow_head=True)
+@routes.get("/health", allow_head=True)
+@routes.get("/healthz", allow_head=True)
 async def ping_handler(request):
     return web.json_response({"status": "alive"})
 
