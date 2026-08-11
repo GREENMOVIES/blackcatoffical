@@ -57,7 +57,10 @@ async def verify_mongodb_connection(max_retries=5):
             await asyncio.sleep(delays[min(attempt, len(delays)-1)])
 
 
-# Errors that indicate a transient / recoverable connection problem
+# Errors that indicate a transient / recoverable connection problem.
+# NOTE: Python built-in ConnectionError is NOT included here because
+# Pyrogram raises ConnectionError("Client is already connected") when
+# the client is already up — that must be treated as success, not retried.
 _RETRIABLE_ERRORS = (
     PyroConnectionError,
     NetworkMigrate,
@@ -65,11 +68,10 @@ _RETRIABLE_ERRORS = (
     FloodWait,
     ServiceUnavailable,
     TimeoutError,
-    ConnectionError,
     OSError,
 )
 
-# Errors that are programming bugs — never retry, fail immediately
+# Errors that are programming bugs — never retry, fail immediately.
 _FATAL_ERRORS = (
     AttributeError,
     ImportError,
@@ -82,13 +84,19 @@ _FATAL_ERRORS = (
 async def start_bot_with_retry(client, max_retries=5):
     """Start Pyrogram client with retry only for transient connection failures.
 
-    Guards against calling start() on an already-connected client.
-    Fails immediately for programming errors (AttributeError, ImportError, etc.).
+    - If the client is already connected, returns True immediately (no double-start).
+    - 'Client is already connected' ConnectionError is treated as success.
+    - Programming errors (AttributeError, ImportError, etc.) propagate immediately.
+    - Only genuine transient network/Telegram failures are retried.
     """
     delays = [2, 5, 10, 15, 30]
 
-    # Guard: never call start() if the client is already connected.
-    if getattr(client, 'is_connected', False):
+    # Guard: check is_connected property before attempting start().
+    try:
+        already = client.is_connected
+    except Exception:
+        already = False
+    if already:
         logger.info("Telegram Client is already connected — skipping start().")
         return True
 
@@ -98,8 +106,28 @@ async def start_bot_with_retry(client, max_retries=5):
             await client.start()
             logger.info("Telegram Client started successfully.")
             return True
+        except ConnectionError as e:
+            # Pyrogram raises ConnectionError("Client is already connected") when the
+            # internal session was established before another error propagated.
+            # This means the client IS connected — treat as success.
+            if "already connected" in str(e).lower():
+                logger.info(
+                    "Client is already connected (detected mid-start). "
+                    "Treating as successful start."
+                )
+                return True
+            # Any other ConnectionError is a real transient failure — retry.
+            wait = delays[min(attempt, len(delays) - 1)]
+            logger.error(
+                f"Connection error (attempt {attempt + 1}/{max_retries}): {e}. "
+                f"Retrying in {wait}s..."
+            )
+            if attempt == max_retries - 1:
+                logger.critical("Fatal: Failed to connect to Telegram API after max retries.")
+                raise
+            await asyncio.sleep(wait)
         except _FATAL_ERRORS as e:
-            # Programming errors — do not retry, propagate immediately
+            # Programming errors — do not retry, propagate immediately.
             logger.critical(
                 f"Fatal programming error starting Telegram Client: {e}\n{traceback.format_exc()}"
             )
@@ -115,7 +143,7 @@ async def start_bot_with_retry(client, max_retries=5):
                 raise
             await asyncio.sleep(wait)
         except Exception as e:
-            # Unknown exception — log and do not retry
+            # Unknown exception — log full traceback and do not retry.
             logger.critical(
                 f"Unexpected error starting Telegram Client: {e}\n{traceback.format_exc()}"
             )
