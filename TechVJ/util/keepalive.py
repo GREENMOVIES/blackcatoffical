@@ -15,6 +15,8 @@ async def ping_server():
     interval = max(15, min(PING_INTERVAL, 60))
 
     clean_url = URL.strip().rstrip('/')
+    if not clean_url.startswith(('http://', 'https://')):
+        clean_url = f"https://{clean_url}"
     ext_url = clean_url if clean_url.endswith('/ping') else f"{clean_url}/ping"
     logging.info(f"Keep-Alive service started. Pinging every {interval} seconds. External: {ext_url}")
     
@@ -49,11 +51,20 @@ async def ping_server():
                 try:
                     async with session.get(ext_url, allow_redirects=True) as resp:
                         if resp.status == 200:
-                            logging.info("Keep-Alive External: Success")
+                            logging.info(f"Keep-Alive External: Success ({ext_url})")
                         else:
-                            logging.warning(f"Keep-Alive External: Failed ({resp.status})")
+                            # Try fallback to root URL
+                            async with session.get(clean_url, allow_redirects=True) as root_resp:
+                                if root_resp.status == 200:
+                                    logging.info(f"Keep-Alive External: Success via root ({clean_url})")
+                                else:
+                                    logging.error(
+                                        f"CRITICAL WARNING: Keep-Alive External failed for {ext_url} (Status: {resp.status}). "
+                                        f"Koyeb will STOP this instance if external requests fail! "
+                                        f"Fix: Set 'URL' env variable in Koyeb Dashboard to your exact Koyeb public domain (e.g. https://your-app-name.koyeb.app)."
+                                    )
                 except Exception as ee:
-                    logging.error(f"Keep-Alive External: Failed ({ee})")
+                    logging.error(f"Keep-Alive External: Network error for {ext_url}: {ee}")
 
         except Exception as e:
             logging.error(f"Keep-Alive Loop Error: {e}\n{traceback.format_exc()}")

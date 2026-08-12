@@ -187,8 +187,13 @@ MULTI_CLIENT = False
 SLEEP_THRESHOLD = int(environ.get('SLEEP_THRESHOLD', '60'))
 PING_INTERVAL = int(environ.get("PING_INTERVAL", "60"))  # 60 seconds — keeps Koyeb/Heroku awake
 ON_HEROKU = 'DYNO' in environ
-ON_KOYEB = 'KOYEB_PROJECT_ID' in environ or 'KOYEB_APP_NAME' in environ
-URL = environ.get("URL", "https://forthcoming-carmine-greenfilmfx-8e011ace.koyeb.app/")
+ON_KOYEB = 'KOYEB_PROJECT_ID' in environ or 'KOYEB_APP_NAME' in environ or 'KOYEB_PUBLIC_DOMAIN' in environ
+koyeb_domain = environ.get('KOYEB_PUBLIC_DOMAIN')
+default_url = f"https://{koyeb_domain}/" if koyeb_domain else "https://forthcoming-carmine-greenfilmfx-8e011ace.koyeb.app/"
+URL = environ.get("URL", default_url)
+if URL and not URL.startswith(('http://', 'https://')):
+    URL = f"https://{URL}"
+
 
 
 # Rename Info : If True Then Bot Rename File Else Not
